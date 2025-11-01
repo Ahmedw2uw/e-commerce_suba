@@ -5,7 +5,7 @@ import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatelessWidget {
-  static const String routeName = "login";
+  static const String routeName = "/login";
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -19,8 +19,7 @@ class Login extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
               const SizedBox(height: 40),
               Center(child: Image.asset(AppImages.logo, height: 100)),
@@ -122,15 +121,16 @@ class Login extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
                     "Don't have an account? ",
-                    style: TextStyle(fontSize: 18, color: AppColors.white),
+                    style: TextStyle(color: Colors.white70),
                   ),
-                  GestureDetector(
-                    onTap: () {
+                  TextButton(
+                    onPressed: () {
                       Navigator.pushReplacementNamed(context, SignUp.routeName);
                     },
                     child: const Text(
