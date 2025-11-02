@@ -14,7 +14,6 @@ abstract class AppImages {
 
 abstract class AppSvgs {
   static const String _basePath = 'assets/svgs/';
-  static const String logo = '${_basePath}logo.svg';
   static const String searchIcon = '${_basePath}search_icon.svg';
   static const String cartIcon = '${_basePath}cart_icon.svg';
   static const String ratingIcon = '${_basePath}rating_icon.svg';

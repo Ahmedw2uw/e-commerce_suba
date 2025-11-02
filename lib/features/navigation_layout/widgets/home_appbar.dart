@@ -1,4 +1,4 @@
-import 'package:e_commerce/core/utils/app_assets.dart';
+import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/core/widgets/search_and_cart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,7 +12,6 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false,
 
-      title: SvgPicture.asset(AppSvgs.logo),
       bottom:
           tabIndex == 3
               ? PreferredSize(
