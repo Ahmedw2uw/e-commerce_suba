@@ -1,31 +1,29 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class ProductCard extends StatelessWidget {
+class Cart extends StatelessWidget {
   final String image;
   final String title;
   final String colorName;
   final Color colorDot;
   final double price;
   final double oldPrice;
-  final VoidCallback onAddToCart;
-  final VoidCallback onFavorite;
-  final bool isFavorite;
+  final VoidCallback onDelete;
+  final bool isDeleted;
 
-  const ProductCard({
+  const Cart({
     super.key,
-    this.image = "", 
-    this.title = 'Unknown Product', 
-    this.colorName = 'Unknown color', 
-    this.colorDot = Colors.grey, 
-    this.price = 0.0, 
+    this.image = 'assets/images/default.png',
+    this.title = 'Unknown Product',
+    this.colorName = 'Unknown color',
+    this.colorDot = Colors.grey,
+    this.price = 0.0,
     this.oldPrice = 0.0,
-    this.onAddToCart = _defaultVoid,
-    this.onFavorite = _defaultVoid,
-    this.isFavorite = false, 
+    this.onDelete = _defaultVoid,
+    this.isDeleted = false,
   });
 
-  static void _defaultVoid() {} 
+  static void _defaultVoid() {}
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +48,13 @@ class ProductCard extends StatelessWidget {
               child: Image.asset(
                 image,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image_not_supported),
+
               ),
             ),
           ),
           const SizedBox(width: 12),
 
+          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,26 +103,73 @@ class ProductCard extends StatelessWidget {
           Column(
             children: [
               IconButton(
-                icon: const Icon(
-                  Icons.favorite_outlined,
-                  color: AppColors.blue,
-                ),
-                onPressed: onFavorite,
+                icon: const Icon(Icons.delete_rounded, color: AppColors.red),
+                onPressed: onDelete,
               ),
-              ElevatedButton(
-                onPressed: onAddToCart,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo[900],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Add to Cart'),
-              ),
+              _quantityBox(quantity: 1, onAdd: () => {}, onRemove: () => {}),
             ],
           ),
         ],
       ),
     );
   }
+}
+
+Widget _quantityBox({
+  required int quantity,
+  required VoidCallback onAdd,
+  required VoidCallback onRemove,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: AppColors.blue,
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+      
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 1.5),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.remove, color: Colors.white, size: 16),
+            onPressed: onRemove,
+          ),
+        ),
+    
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            '$quantity',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 1.5),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.add, color: Colors.white, size: 16),
+            onPressed: onAdd,
+          ),
+        ),
+      ],
+    ),
+  );
 }
