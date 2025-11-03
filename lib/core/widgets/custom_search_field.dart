@@ -1,4 +1,4 @@
-import 'package:e_commerce/core/utils/app_assets.dart';
+import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
