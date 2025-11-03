@@ -19,8 +19,7 @@ class Login extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
               const SizedBox(height: 40),
               Center(child: Image.asset(AppImages.logo, height: 100)),
@@ -127,7 +126,7 @@ class Login extends StatelessWidget {
                 children: [
                   const Text(
                     "Don't have an account? ",
-                    style: TextStyle(fontSize: 18, color: AppColors.white),
+                    style: TextStyle(color: Colors.white70),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -138,6 +137,7 @@ class Login extends StatelessWidget {
                       style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
                   ),

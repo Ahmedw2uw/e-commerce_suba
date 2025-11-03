@@ -1,6 +1,6 @@
 import 'package:e_commerce/core/utilits/app_assets.dart';
-import 'package:e_commerce/features/navigation_layout/widgets/banner_home_screen.dart';
-import 'package:e_commerce/features/navigation_layout/widgets/categories_avatar.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/banner_home_screen.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/categories_avatar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

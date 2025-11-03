@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:e_commerce/core/theme/app_colors.dart';
+import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/features/auth/auth_text_feald.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
@@ -26,8 +27,7 @@ class SignUp extends StatelessWidget {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: ListView(
               children: [
                 const SizedBox(height: 10),
 
@@ -40,6 +40,9 @@ class SignUp extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 20),
+                      Center(child: Image.asset(AppImages.logo, height: 100)),
+                      const SizedBox(height: 20),
                       AuthTextField(
                         title: "Full Name",
                         hintText: "enter your full name",
@@ -64,7 +67,7 @@ class SignUp extends StatelessWidget {
                         obscureText: true,
                         controller: passwordController,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
 
                       ElevatedButton(
                         onPressed: () {
@@ -107,9 +110,11 @@ class SignUp extends StatelessWidget {
                         Navigator.pushNamed(context, Login.routeName);
                       },
                       child: Text(
-                        "signIn",
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                        "SignIn",
+                        style: TextStyle(
                           color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
                     ),
