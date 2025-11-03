@@ -1,4 +1,5 @@
 import 'package:e_commerce/core/theme/app_theme.dart';
+import 'package:e_commerce/core/widgets/cart_screen.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/auth/regester/register.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         Login.routeName: (ctx) => Login(),
         SignUp.routeName: (ctx) => SignUp(),
         NavigationView.routeName: (ctx) => const NavigationView(),
+        CartScreen.routeName: (ctx) => const CartScreen(),
       },
     );
   }

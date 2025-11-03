@@ -1,9 +1,8 @@
-// ignore_for_file: use_super_parameters
 
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class TextFeald extends StatelessWidget {
+class TextField extends StatelessWidget {
   final String title;
   final String hintText;
   final TextEditingController? controller;
@@ -16,8 +15,8 @@ class TextFeald extends StatelessWidget {
   final IconData? suffixIcon;
   final VoidCallback? onIconPressed;
 
-  const TextFeald({
-    Key? key,
+  const TextField({
+    super.key,
     required this.title,
     required this.hintText,
     this.controller,
@@ -29,7 +28,7 @@ class TextFeald extends StatelessWidget {
     this.titleFontSize = 18,
     this.suffixIcon = Icons.edit,
     this.onIconPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

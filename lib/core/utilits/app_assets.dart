@@ -9,8 +9,12 @@ abstract class AppImages {
   static const String beauty = 'assets/images/beauty.jpg';
   static const String headphones = 'assets/images/headphones.jpg';
   static const String laptop = 'assets/images/laptop.jpg';
-  static const String men = 'assets/images/men.jpg';
+  static const String men = 'assets/images/men.png';
   static const String women = 'assets/images/women.jpg';
+  static const String dress = 'assets/images/drees.png';
+  static const String nike = 'assets/images/nike.png';
+  static const String watch = 'assets/images/watch.png';
+
   static const String bags = 'assets/images/Bags.jpg';
   static const String eyewears = 'assets/images/Eyewears.jpg';
   static const String footwear = 'assets/images/Footwear.jpg';

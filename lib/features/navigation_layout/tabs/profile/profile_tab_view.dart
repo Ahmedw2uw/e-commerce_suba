@@ -1,5 +1,5 @@
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide TextField;
 import 'package:e_commerce/core/theme/app_colors.dart';
 
 class ProfileTabView extends StatelessWidget {
@@ -41,7 +41,7 @@ class ProfileTabView extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
-                TextFeald(
+                TextField(
                   title: "Your Name",
                   hintText: 'Name',
                   controller: nameController,
@@ -49,7 +49,7 @@ class ProfileTabView extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // الإيميل
-                TextFeald(
+                TextField(
                   title: 'Your E-mail',
                   hintText: 'Email',
                   controller: emailController,
@@ -57,7 +57,7 @@ class ProfileTabView extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // الباسورد
-                TextFeald(
+                TextField(
                   title: 'Your password',
                   hintText: '',
                   controller: passwordController,
@@ -66,7 +66,7 @@ class ProfileTabView extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // الموبايل
-                TextFeald(
+                TextField(
                   title: 'Your mobile number',
                   hintText: 'Mobile number',
                   controller: phoneController,
@@ -74,7 +74,7 @@ class ProfileTabView extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // العنوان
-                TextFeald(
+                TextField(
                   title: 'Your Address',
                   hintText: 'Address',
                   controller: addressController,

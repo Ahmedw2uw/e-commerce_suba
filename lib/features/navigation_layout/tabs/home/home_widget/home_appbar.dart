@@ -10,12 +10,16 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false,
 
-      bottom: tabIndex == 3
-          ? PreferredSize(preferredSize: preferredSize, child: const SizedBox())
-          : PreferredSize(
-              preferredSize: preferredSize,
-              child: const SearchAndCartWidget(),
-            ),
+      bottom:
+          tabIndex == 3
+              ? PreferredSize(
+                preferredSize: preferredSize,
+                child: const SizedBox(),
+              )
+              : PreferredSize(
+                preferredSize: preferredSize,
+                child: const SearchAndCartWidget(),
+              ),
     );
   }
 
