@@ -3,13 +3,15 @@ abstract class AppImages {
   static const String advertisement1 = '${_basePath}advertisement_1.png';
   static const String advertisement2 = '${_basePath}advertisement_2.png';
   static const String advertisement3 = '${_basePath}advertisement_3.png';
-  static const String logo='assets/images/logoo.png';
-  static const String beauty='assets/images/beauty.jpg'; 
-  static const String headphones='assets/images/headphones.jpg';
-  static const String laptop='assets/images/laptop.jpg';
-  static const String men='assets/images/men.jpg';
-  static const String women='assets/images/women.jpg';
- 
+  static const String logo = 'assets/images/logoo.png';
+  static const String beauty = 'assets/images/beauty.jpg';
+  static const String headphones = 'assets/images/headphones.jpg';
+  static const String laptop = 'assets/images/laptop.jpg';
+  static const String men = 'assets/images/men.png';
+  static const String women = 'assets/images/women.jpg';
+  static const String dress = 'assets/images/drees.png';
+  static const String nike = 'assets/images/nike.png';
+  static const String watch = 'assets/images/watch.png';
 }
 
 abstract class AppSvgs {

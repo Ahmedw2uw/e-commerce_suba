@@ -1,3 +1,4 @@
+import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:flutter/material.dart';
 
 class CategoriesAvatars extends StatelessWidget {
@@ -12,11 +13,11 @@ class CategoriesAvatars extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              buildCategory("Women's Fashion", "assets/images/women.jpg"),
-              buildCategory("Men's Fashion", "assets/images/men.jpg"),
-              buildCategory("Laptops", "assets/images/laptop.jpg"),
-              buildCategory("Beauty", "assets/images/beauty.jpg"),
-              buildCategory("Headphones", "assets/images/headphones.jpg"),
+              buildCategory("Women's Fashion", AppImages.women),
+              buildCategory("Men's Fashion", AppImages.men),
+              buildCategory("Laptops", AppImages.laptop),
+              buildCategory("Beauty", AppImages.beauty),
+              buildCategory("Headphones", AppImages.headphones),
             ],
           ),
         ),
@@ -25,11 +26,11 @@ class CategoriesAvatars extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              buildCategory("Women's Fashion", "assets/images/women.jpg"),
-              buildCategory("Men's Fashion", "assets/images/men.jpg"),
-              buildCategory("Laptops", "assets/images/laptop.jpg"),
-              buildCategory("Beauty", "assets/images/beauty.jpg"),
-              buildCategory("Headphones", "assets/images/headphones.jpg"),
+              buildCategory("Women's Fashion", AppImages.women),
+              buildCategory("Men's Fashion", AppImages.men),
+              buildCategory("Laptops", AppImages.laptop),
+              buildCategory("Beauty", AppImages.beauty),
+              buildCategory("Headphones", AppImages.headphones),
             ],
           ),
         ),
