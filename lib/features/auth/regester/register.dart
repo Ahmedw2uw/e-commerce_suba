@@ -1,36 +1,145 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/features/auth/auth_text_feald.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
+import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:flutter/material.dart';
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   static const String routeName = '/register';
   SignUp({super.key});
 
-  var fullNameController = TextEditingController();
-  var mobileNumberController = TextEditingController();
-  var emailController = TextEditingController();
-  var passwordController = TextEditingController();
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
 
-  var formKey = GlobalKey<FormState>();
+class _SignUpState extends State<SignUp> {
+  final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  // Full Name Validator
+  String? _validateFullName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your full name';
+    }
+    if (value.length < 3) {
+      return 'Name must be at least 3 characters';
+    }
+    return null;
+  }
+
+  // Phone Number Validator
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your mobile number';
+    }
+    // التحقق من أن الرقم يحتوي على أرقام فقط
+    final phoneRegex = RegExp(r'^[0-9]+$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Please enter a valid phone number';
+    }
+    if (value.length < 10) {
+      return 'Phone number must be at least 10 digits';
+    }
+    return null;
+  }
+
+  // Email Validator
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    // Regular expression للتحقق من صيغة الإيميل
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
+
+  // Password Validator
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    return null;
+  }
+
+  Future<void> _signUp() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        final result = await SupabaseService.signUp(
+          name: _fullNameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          phone: _phoneNumberController.text.trim(),
+        );
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushReplacementNamed(context, Login.routeName);
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Failed to register: ${e.toString().replaceAll('Exception: ', '')}',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _phoneNumberController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.blue,
       body: Form(
-        key: formKey,
+        key: _formKey,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
               children: [
                 const SizedBox(height: 10),
-
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -43,56 +152,72 @@ class SignUp extends StatelessWidget {
                       const SizedBox(height: 20),
                       Center(child: Image.asset(AppImages.logo, height: 100)),
                       const SizedBox(height: 20),
+
+                      // Full Name Field
                       AuthTextField(
                         title: "Full Name",
-                        hintText: "enter your full name",
-                        controller: fullNameController,
+                        hintText: "Enter Your Full Name",
+                        controller: _fullNameController,
+                        validator: _validateFullName,
                       ),
                       const SizedBox(height: 10),
+
+                      // Phone Number Field
                       AuthTextField(
                         title: "Mobile Number",
-                        hintText: "enter your mobile no.",
-                        controller: mobileNumberController,
+                        hintText: "Enter Your Mobile Number",
+                        controller: _phoneNumberController,
+                        validator: _validatePhone,
+                        keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 10),
+
+                      // Email Field
                       AuthTextField(
                         title: "Email Address",
-                        hintText: "enter your server email",
-                        controller: emailController,
+                        hintText: "Enter Your Email",
+                        controller: _emailController,
+                        validator: _validateEmail,
+                        keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 10),
+
+                      // Password Field
                       AuthTextField(
                         title: "Password",
-                        hintText: "enter your password",
+                        hintText: "Enter Your Password",
                         obscureText: true,
-                        controller: passwordController,
+                        controller: _passwordController,
+                        validator: _validatePassword,
                       ),
                       const SizedBox(height: 20),
 
-                      ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            Navigator.pushNamed(
-                              context,
-                              NavigationView.routeName,
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: const Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            color: Color(0xFF001F3F),
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
+                      // Sign Up Button
+                      _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: _signUp,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                              ),
+                              child: const Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                  color: Color(0xFF001F3F),
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                 ),
@@ -107,10 +232,13 @@ class SignUp extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, Login.routeName);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          Login.routeName,
+                        );
                       },
                       child: Text(
-                        "SignIn",
+                        "Sign In",
                         style: TextStyle(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,

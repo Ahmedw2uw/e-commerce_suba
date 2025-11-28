@@ -1,6 +1,6 @@
 name: e_commerce
 description: "A new Flutter project."
-publish_to: 'none' 
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -23,6 +23,9 @@ dependencies:
   dots_indicator: ^4.0.1
   icons_plus: ^5.0.0
   lottie: ^3.3.2
+  supabase: ^2.10.0
+  supabase_flutter: ^2.10.3
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -33,7 +36,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/images/
     - assets/svgs/
     - assets/lottie/
-
