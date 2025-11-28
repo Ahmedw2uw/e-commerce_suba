@@ -6,15 +6,15 @@ import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:e_commerce/features/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load(fileName: ".env");
   await Supabase.initialize(
-    url: 'https://lfxqndbxnffcbdcchghm.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmeHFuZGJ4bmZmY2JkY2NoZ2htIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MDA2OTEsImV4cCI6MjA3Njk3NjY5MX0.oHut5dkd0Wppll10blQhw_PEYGl8XgGO2pWbl0ZFZW8',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   runApp(const MyApp());
 }
