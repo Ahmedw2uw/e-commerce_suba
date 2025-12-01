@@ -1,4 +1,3 @@
-
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +13,8 @@ class TextField extends StatelessWidget {
   final double titleFontSize;
   final IconData? suffixIcon;
   final VoidCallback? onIconPressed;
+  final TextInputType? keyboardType;
+  final bool readOnly;
 
   const TextField({
     super.key,
@@ -21,6 +22,7 @@ class TextField extends StatelessWidget {
     required this.hintText,
     this.controller,
     this.obscureText = false,
+    this.readOnly = false,
     this.validator,
     this.titleColor = AppColors.blue,
     this.fillColor = Colors.white,
@@ -28,6 +30,7 @@ class TextField extends StatelessWidget {
     this.titleFontSize = 18,
     this.suffixIcon = Icons.edit,
     this.onIconPressed,
+    this.keyboardType,
   });
 
   @override
@@ -48,10 +51,12 @@ class TextField extends StatelessWidget {
           controller: controller,
           validator: validator,
           obscureText: obscureText,
+          readOnly: readOnly,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
-            fillColor: fillColor,
+            fillColor: readOnly ? Colors.grey[100] : fillColor,
             suffixIcon: suffixIcon != null
                 ? IconButton(
                     onPressed: onIconPressed,
@@ -70,8 +75,12 @@ class TextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: borderColor, width: 2),
             ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: readOnly ? Colors.grey[600] : Colors.black87),
         ),
       ],
     );
