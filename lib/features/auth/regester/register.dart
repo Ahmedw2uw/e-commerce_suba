@@ -39,7 +39,6 @@ class _SignUpState extends State<SignUp> {
     if (value == null || value.isEmpty) {
       return 'Please enter your mobile number';
     }
-    // التحقق من أن الرقم يحتوي على أرقام فقط
     final phoneRegex = RegExp(r'^[0-9]+$');
     if (!phoneRegex.hasMatch(value)) {
       return 'Please enter a valid phone number';
@@ -53,12 +52,16 @@ class _SignUpState extends State<SignUp> {
   // Email Validator
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Please Enter Your Email';
     }
-    // Regular expression للتحقق من صيغة الإيميل
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+    final email = value.trim();
+    try {
+      final uri = Uri.parse('mailto:$email');
+      if (!uri.isScheme('mailto') || !email.contains('@')) {
+        return 'Please Enter a Valid Email';
+      }
+    } catch (e) {
+      return 'Please Enter a Valid Email';
     }
     return null;
   }

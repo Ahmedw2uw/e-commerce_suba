@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class Login extends StatefulWidget {
   static const String routeName = "login";
 
-  Login({super.key});
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -24,11 +24,16 @@ class _LoginState extends State<Login> {
   // Email Validator
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your email';
+      return 'Please Enter Your Email';
     }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+    final email = value.trim();
+    try {
+      final uri = Uri.parse('mailto:$email');
+      if (!uri.isScheme('mailto') || !email.contains('@')) {
+        return 'Please Enter a Valid Email';
+      }
+    } catch (e) {
+      return 'Please Enter a Valid Email';
     }
     return null;
   }
@@ -51,8 +56,8 @@ class _LoginState extends State<Login> {
       });
 
       try {
-        final result = await SupabaseService.login(
-          email: _emailController.text,
+        final user = await SupabaseService.login(
+          email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
@@ -62,8 +67,8 @@ class _LoginState extends State<Login> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Logged in successfully'),
+            SnackBar(
+              content: Text('Wlecom Back, ${user.name}!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -74,15 +79,27 @@ class _LoginState extends State<Login> {
           setState(() {
             _isLoading = false;
           });
+          String errorMessage = e.toString().replaceAll('Exception: ', '');
+          if (errorMessage.contains('Invalid Login Credentials')) {
+            errorMessage = 'Invalid email or password';
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to login: $e'),
+              content: Text(errorMessage),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -199,8 +216,7 @@ class _LoginState extends State<Login> {
                   style: const TextStyle(color: Colors.black),
                 ),
 
-                const SizedBox(height: 10),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
 
                 SizedBox(
                   width: double.infinity,
@@ -222,6 +238,7 @@ class _LoginState extends State<Login> {
                             style: TextStyle(
                               fontSize: 18,
                               color: AppColors.darkBlue,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
