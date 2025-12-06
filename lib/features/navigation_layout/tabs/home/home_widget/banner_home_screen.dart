@@ -6,7 +6,7 @@ class BannerHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 160, // نحدد الارتفاع العام للـ ListView
+      height: 160, 
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10),

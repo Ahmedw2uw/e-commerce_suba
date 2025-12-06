@@ -21,6 +21,6 @@ class HomeBottomNavigationBarItem extends BottomNavigationBarItem {
                  )
                : Icon(icon, color: AppColors.white),
          ),
-         label: "",
+         label: '', 
        );
 }

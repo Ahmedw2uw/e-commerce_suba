@@ -1,6 +1,6 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/categories_tab_view.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/favorite/favorite_tab_view.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/favorite/presentation/favorite_tab_view.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/profile_tab_view.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/home_appbar.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/home_bottom_navigation_bar_item.dart';
@@ -30,42 +30,42 @@ class _NavigationViewState extends State<NavigationView> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: index,
-      builder:
-          (context, value, child) => Scaffold(
-            appBar: HomeAppbar(tabIndex: index.value),
-            body: pages[value],
-            bottomNavigationBar: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-              child: BottomNavigationBar(
-                backgroundColor: AppColors.blue,
-                type: BottomNavigationBarType.fixed,
-                onTap: changeSelectedIndex,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                items: [
-                  HomeBottomNavigationBarItem(
-                    icon: Iconsax.home_outline,
-                    isSelected: value == 0,
-                  ),
-                  HomeBottomNavigationBarItem(
-                    icon: Iconsax.category_outline,
-                    isSelected: value == 1,
-                  ),
-                  HomeBottomNavigationBarItem(
-                    icon: Iconsax.heart_outline,
-                    isSelected: value == 2,
-                  ),
-                  HomeBottomNavigationBarItem(
-                    icon: Iconsax.user_outline,
-                    isSelected: value == 3,
-                  ),
-                ],
-              ),
-            ),
+      builder: (context, value, child) => Scaffold(
+        appBar: HomeAppbar(tabIndex: index.value),
+        body: pages[value],
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
+          child: BottomNavigationBar(
+            backgroundColor: AppColors.blue,
+            type: BottomNavigationBarType.fixed,
+            onTap: changeSelectedIndex,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+
+            items: [
+              HomeBottomNavigationBarItem(
+                icon: Iconsax.home_outline,
+                isSelected: value == 0,
+              ),
+              HomeBottomNavigationBarItem(
+                icon: Iconsax.category_outline,
+                isSelected: value == 1,
+              ),
+              HomeBottomNavigationBarItem(
+                icon: Iconsax.heart_outline,
+                isSelected: value == 2,
+              ),
+              HomeBottomNavigationBarItem(
+                icon: Iconsax.user_outline,
+                isSelected: value == 3,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
