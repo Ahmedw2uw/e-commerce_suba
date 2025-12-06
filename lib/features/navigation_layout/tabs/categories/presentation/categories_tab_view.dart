@@ -1,7 +1,13 @@
+// lib/features/navigation_layout/tabs/categories/presentation/categories_tab_view.dart
+
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
+import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_banner.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/state/category_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesTabView extends StatefulWidget {
   const CategoriesTabView({super.key});
@@ -11,61 +17,69 @@ class CategoriesTabView extends StatefulWidget {
 }
 
 class _CategoriesTabViewState extends State<CategoriesTabView> {
-  int selectedIndex = 0;
-
-  final List<String> categories = [
-    "Men's Fashion",
-    "Women's Fashion",
-    "Skincare",
-    "Beauty",
-    "Headphones",
-    "Cameras",
-    "Laptops & Electronics",
-    "Baby & Toys",
-  ];
-
-  final Map<String, List<Map<String, String>>> products = {
-    "Men's Fashion": [
-      {"name": "T-shirts", "image": AppImages.t_shirts},
-      {"name": "Shorts", "image": AppImages.shorts},
-      {"name": "Jeans", "image": AppImages.jeans},
-      {"name": "Pants", "image": AppImages.pants},
-      {"name": "Footwear", "image": AppImages.footwear},
-      {"name": "Suits", "image": AppImages.suits},
-      {"name": "Watches", "image": AppImages.watches},
-      {"name": "Bags", "image": AppImages.bags},
-      {"name": "Eyewear", "image": AppImages.eyewears},
-    ],
-    "Women's Fashion": [
-      {"name": "Dresses", "image": AppImages.dresses},
-      {"name": "Jeans", "image": AppImages.w_jeans},
-      {"name": "Skirts", "image": AppImages.skirts},
-      {"name": "Pijamas", "image": AppImages.pijamas},
-      {"name": "Bags", "image": AppImages.w_bags},
-      {"name": "T-shirts", "image": AppImages.w_t_shirts},
-      {"name": "Footwear", "image": AppImages.w_footwear},
-      {"name": "Eyewear", "image": AppImages.eyewears},
-      {"name": "Watches", "image": AppImages.watches},
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoryCubit>().loadCategories();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    String selectedCategory = categories[selectedIndex];
-    final items = products[selectedCategory] ?? [];
+    return BlocBuilder<CategoryCubit, CategoryState>(
+      builder: (context, state) {
+        return _buildContent(state);
+      },
+    );
+  }
 
+  Widget _buildContent(CategoryState state) {
+    if (state is CategoryLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state is CategoryError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: ${state.message}'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => context.read<CategoryCubit>().loadCategories(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state is CategoryLoaded) {
+      return _buildCategoriesView(state);
+    }
+
+    // الحالة الأولية - يمكنك عرض شاشة تحميل أو رسالة
+    return const Center(
+      child: Text('Select a category to view products'),
+    );
+  }
+
+  Widget _buildCategoriesView(CategoryLoaded state) {
     return Row(
       children: [
-        // القائمة الجانبية
+        // قائمة التصنيفات الجانبية
         Container(
           width: 120,
           color: AppColors.litghGray,
           child: ListView.builder(
-            itemCount: categories.length,
+            itemCount: state.categories.length,
             itemBuilder: (context, index) {
-              final isSelected = selectedIndex == index;
+              final category = state.categories[index];
+              final isSelected = state.selectedIndex == index;
+              
               return GestureDetector(
-                onTap: () => setState(() => selectedIndex = index),
+                onTap: () => context.read<CategoryCubit>().changeCategory(index),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 16,
@@ -80,7 +94,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                         : null,
                   ),
                   child: Text(
-                    categories[index],
+                    category.name,
                     style: TextStyle(
                       color: isSelected ? Colors.blue : Colors.black87,
                       fontWeight: isSelected
@@ -94,15 +108,16 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
           ),
         ),
 
-        // المحتوى الرئيسي
+        // محتوى التصنيف المحدد
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // عنوان التصنيف
                 Text(
-                  selectedCategory,
+                  state.categories[state.selectedIndex].name,
                   style: TextStyle(
                     color: AppColors.darkBlue,
                     fontSize: 18,
@@ -110,54 +125,94 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // البنر
+
+                // البانر (يمكنك تعديله بناءً على التصنيف)
                 CategoryBanner(
-                  title: selectedCategory,
-                  imageUrl: selectedIndex == 0
-                      ? AppImages.men_banner
-                      : AppImages.women_banner,
+                  title: state.categories[state.selectedIndex].name,
+                  imageUrl: _getBannerImage(state.selectedIndex),
                 ),
 
                 const SizedBox(height: 20),
 
-                // شبكة المنتجات
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: items.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 0.8,
+                // المنتجات
+                if (state.products.isNotEmpty)
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: state.products.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: 0.8,
+                    ),
+                    itemBuilder: (context, index) {
+                      final product = state.products[index];
+                      return _buildProductItem(product);
+                    },
+                  )
+                else
+                  const Center(
+                    child: Text('No products in this category'),
                   ),
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              item["image"]!,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item["name"]!,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    );
-                  },
-                ),
               ],
             ),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildProductItem(Product product) {
+    return Column(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: product.images.isNotEmpty
+                ? Image.network(
+                    product.images.first,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image_not_supported),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          product.name,
+          style: const TextStyle(fontSize: 14),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          '\$${product.price.toStringAsFixed(2)}',
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.green,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getBannerImage(int selectedIndex) {
+    // يمكنك تغيير هذا بناءً على التصنيفات الفعلية
+    if (selectedIndex == 0) {
+      return AppImages.men_banner;
+    } else if (selectedIndex == 1) {
+      return AppImages.women_banner;
+    }
+    // يمكنك إضافة المزيد أو استخدام صورة افتراضية
+    return AppImages.men_banner; // افتراضية
   }
 }

@@ -14,6 +14,7 @@ class Product {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Category? category;
+  
 
   Product({
     required this.id,

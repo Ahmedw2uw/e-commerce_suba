@@ -1,5 +1,5 @@
 import 'package:e_commerce/core/utilits/app_assets.dart';
-import 'package:e_commerce/core/widgets/cart_screen.dart';
+import 'package:e_commerce/features/cart/presentation/screens/cart_screen.dart';
 import 'package:e_commerce/core/widgets/custom_search_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
