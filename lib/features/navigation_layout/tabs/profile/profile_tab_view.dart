@@ -1,5 +1,7 @@
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/profile/change_password_dialog.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/profile/change_email_dialog.dart';
 import 'package:flutter/material.dart' hide TextField;
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
@@ -232,18 +234,6 @@ class _ProfileTabViewState extends State<ProfileTabView> {
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _streetController.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
-    _zipCodeController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (_isLoading && _currentUser == null) {
       return const Scaffold(
@@ -267,6 +257,9 @@ class _ProfileTabViewState extends State<ProfileTabView> {
 
                 // Personal Information
                 _buildPersonalInfoSection(),
+
+                // Security Section
+                _buildSecuritySection(),
 
                 // Addresses Section
                 _buildAddressesSection(),
@@ -346,6 +339,58 @@ class _ProfileTabViewState extends State<ProfileTabView> {
           readOnly: !_isEditing,
           keyboardType: TextInputType.phone,
         ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildSecuritySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Security',
+          style: TextStyle(
+            color: AppColors.blue,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        Card(
+          elevation: 2,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.lock, color: AppColors.blue),
+                title: Text('Change Password'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const ChangePasswordDialog(),
+                  );
+                },
+              ),
+              Divider(height: 1, thickness: 1),
+              ListTile(
+                leading: Icon(Icons.email, color: AppColors.blue),
+                title: Text('Change Email'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ChangeEmailDialog(
+                      currentEmail: _currentUser?.email ?? '',
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        
         const SizedBox(height: 24),
       ],
     );
@@ -647,5 +692,16 @@ class _ProfileTabViewState extends State<ProfileTabView> {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _zipCodeController.dispose();
+    super.dispose();
   }
 }

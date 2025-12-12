@@ -50,10 +50,6 @@ class SupabaseService {
   }) async {
     try {
       print('Login attempt for: $email');
-      // final response = await _client.functions.invoke(
-      //   'login',
-      //   body: {'email': email, 'password': password},
-      // );
       final response = await _client.auth.signInWithPassword(
         email: email,
         password: password,
@@ -61,11 +57,6 @@ class SupabaseService {
 
       print('Login Response Status: ${response.user}');
       print('Login Response Data: ${response.session}');
-
-      // if (response.status != 200) {
-      //   final errorData = response.data;
-      //   throw Exception(errorData['error'] ?? 'Login failed');
-      // }
 
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
@@ -78,17 +69,6 @@ class SupabaseService {
           .single();
       print('Customer data retrieved: $userData');
 
-      // final sessionData = response.data['session'];
-      // final userData = response.data['user'];
-      // if (sessionData != null && sessionData['access_token'] != null) {
-      //   try {
-      //     await _client.auth.setSession(sessionData['access_token']);
-      //     print('Session set successfully');
-      //   } catch (e) {
-      //     print('Error setting session: $e');
-      //   }
-      // }
-      // print('Login successful for user: ${userData['name']}');
       return UserModel.fromJson(userData);
     } catch (e) {
       print('Login Error Details: $e');
@@ -172,7 +152,19 @@ class SupabaseService {
 
   static Future<void> changePassword({required String newPassword}) async {
     try {
-      await _client.auth.updateUser(UserAttributes(password: newPassword));
+      final response = await _client.functions.invoke(
+        'change_password',
+        body: {
+          'new_password': newPassword,
+        },
+      );
+      if (response.status != 200) {
+        throw Exception('Failed to change password: ${response.status}');
+      }
+      final data = response.data;
+      if (data['success'] != true) {
+        throw Exception(data['error'] ?? 'Unknown error');
+      }
     } catch (e) {
       throw Exception('Failed to change password: $e');
     }
@@ -180,7 +172,19 @@ class SupabaseService {
 
   static Future<void> changeEmail({required String newEmail}) async {
     try {
-      await _client.auth.updateUser(UserAttributes(email: newEmail));
+      final response = await _client.functions.invoke(
+        'change_email',
+        body: {
+          'new_email': newEmail,
+        },
+      );
+      if (response.status != 200) {
+        throw Exception('Failed to change email: ${response.status}');
+      }
+      final data = response.data;
+      if (data['success'] != true) {
+        throw Exception(data['error'] ?? 'Unknown error');
+      }
     } catch (e) {
       throw Exception('Failed to change email: $e');
     }
@@ -207,6 +211,21 @@ class SupabaseService {
       print('Error fetching categories: $e');
       throw Exception('Failed to fetch categories: $e');
     }
+  }
+
+  static Future<List<Product>> getAllProducts() async {
+    final response = await Supabase.instance.client.functions.invoke(
+      'get_all_products',
+    );
+
+    if (response.data['success'] == true) {
+      final products = (response.data['products'] as List)
+          .map((p) => Product.fromJson(p))
+          .toList();
+      print('Loaded ${response.data['total']} products');
+      return products;
+    }
+    throw Exception('Failed to fetch products');
   }
 
   // Using ID
@@ -271,20 +290,19 @@ class SupabaseService {
 
   static Future<List<Address>> getUserAddresses() async {
     try {
-      final authUser = _client.auth.currentUser;
-      if (authUser == null) {
-        throw Exception('No user logged in');
+      final response = await _client.functions.invoke('get_user_addresses');
+
+      if (response.status != 200) {
+        throw Exception('Failed to get addresses: ${response.status}');
       }
 
-      final response = await _client
-          .from('addresses')
-          .select()
-          .eq('customer_auth_id', authUser.id)
-          .order('is_default', ascending: false)
-          .order('created_at', ascending: false);
-
-      final addressesList = response as List;
-      return addressesList.map((address) => Address.fromJson(address)).toList();
+      final data = response.data;
+      if (data['success'] == true) {
+        final addressesList = data['addresses'] as List;
+        return addressesList.map((address) => Address.fromJson(address)).toList();
+      } else {
+        throw Exception(data['error'] ?? 'Unknown error');
+      }
     } catch (e) {
       print('Error getting user addresses: $e');
       throw Exception('Failed to get addresses: $e');
@@ -300,33 +318,28 @@ class SupabaseService {
     bool isDefault = false,
   }) async {
     try {
-      final authUser = _client.auth.currentUser;
-      if (authUser == null) {
-        throw Exception('No user logged in');
+      final response = await _client.functions.invoke(
+        'add_address',
+        body: {
+          'street': street,
+          'city': city,
+          'state': state,
+          'zip_code': zipCode,
+          'country': country,
+          'is_default': isDefault,
+        },
+      );
+
+      if (response.status != 201) {
+        throw Exception('Failed to add address: ${response.status}');
       }
 
-      if (isDefault) {
-        await _client
-            .from('addresses')
-            .update({'is_default': false})
-            .eq('customer_auth_id', authUser.id);
+      final data = response.data;
+      if (data['success'] == true) {
+        return Address.fromJson(data['address']);
+      } else {
+        throw Exception(data['error'] ?? 'Unknown error');
       }
-
-      final response = await _client
-          .from('addresses')
-          .insert({
-            'customer_auth_id': authUser.id,
-            'street': street,
-            'city': city,
-            'state': state,
-            'zip_code': zipCode,
-            'country': country,
-            'is_default': isDefault,
-          })
-          .select()
-          .single();
-
-      return Address.fromJson(response);
     } catch (e) {
       print('Error adding address: $e');
       throw Exception('Failed to add address: $e');
@@ -343,36 +356,28 @@ class SupabaseService {
     bool? isDefault,
   }) async {
     try {
-      final authUser = _client.auth.currentUser;
-      if (authUser == null) {
-        throw Exception('No user logged in');
+      final body = <String, dynamic>{
+        'address_id': addressId,
+      };
+      if (street != null) body['street'] = street;
+      if (city != null) body['city'] = city;
+      if (state != null) body['state'] = state;
+      if (zipCode != null) body['zip_code'] = zipCode;
+      if (country != null) body['country'] = country;
+      if (isDefault != null) body['is_default'] = isDefault;
+
+      final response = await _client.functions.invoke('update_address', body: body);
+
+      if (response.status != 200) {
+        throw Exception('Failed to update address: ${response.status}');
       }
 
-      final updateData = <String, dynamic>{};
-      if (street != null) updateData['street'] = street;
-      if (city != null) updateData['city'] = city;
-      if (state != null) updateData['state'] = state;
-      if (zipCode != null) updateData['zip_code'] = zipCode;
-      if (country != null) updateData['country'] = country;
-      if (isDefault != null) updateData['is_default'] = isDefault;
-
-      if (isDefault == true) {
-        await _client
-            .from('addresses')
-            .update({'is_default': false})
-            .eq('customer_auth_id', authUser.id)
-            .neq('id', addressId);
+      final data = response.data;
+      if (data['success'] == true) {
+        return Address.fromJson(data['address']);
+      } else {
+        throw Exception(data['error'] ?? 'Unknown error');
       }
-
-      final response = await _client
-          .from('addresses')
-          .update(updateData)
-          .eq('id', addressId)
-          .eq('customer_auth_id', authUser.id)
-          .select()
-          .single();
-
-      return Address.fromJson(response);
     } catch (e) {
       print('Error updating address: $e');
       throw Exception('Failed to update address: $e');
@@ -381,16 +386,21 @@ class SupabaseService {
 
   static Future<void> deleteAddress(int addressId) async {
     try {
-      final authUser = _client.auth.currentUser;
-      if (authUser == null) {
-        throw Exception('No user logged in');
+      final response = await _client.functions.invoke(
+        'delete_address',
+        body: {
+          'address_id': addressId,
+        },
+      );
+
+      if (response.status != 200) {
+        throw Exception('Failed to delete address: ${response.status}');
       }
 
-      await _client
-          .from('addresses')
-          .delete()
-          .eq('id', addressId)
-          .eq('customer_auth_id', authUser.id);
+      final data = response.data;
+      if (data['success'] != true) {
+        throw Exception(data['error'] ?? 'Unknown error');
+      }
     } catch (e) {
       print('Error deleting address: $e');
       throw Exception('Failed to delete address: $e');
@@ -399,25 +409,23 @@ class SupabaseService {
 
   static Future<Address> setDefaultAddress(int addressId) async {
     try {
-      final authUser = _client.auth.currentUser;
-      if (authUser == null) {
-        throw Exception('No user logged in');
+      final response = await _client.functions.invoke(
+        'set_default_address',
+        body: {
+          'address_id': addressId,
+        },
+      );
+
+      if (response.status != 200) {
+        throw Exception('Failed to set default address: ${response.status}');
       }
 
-      await _client
-          .from('addresses')
-          .update({'is_default': false})
-          .eq('customer_auth_id', authUser.id);
-
-      final response = await _client
-          .from('addresses')
-          .update({'is_default': true})
-          .eq('id', addressId)
-          .eq('customer_auth_id', authUser.id)
-          .select()
-          .single();
-
-      return Address.fromJson(response);
+      final data = response.data;
+      if (data['success'] == true) {
+        return Address.fromJson(data['address']);
+      } else {
+        throw Exception(data['error'] ?? 'Unknown error');
+      }
     } catch (e) {
       print('Error setting default address: $e');
       throw Exception('Failed to set default address: $e');
