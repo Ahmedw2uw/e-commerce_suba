@@ -1,13 +1,10 @@
 import 'package:e_commerce/core/theme/app_theme.dart';
 import 'package:e_commerce/core/widgets/cart_screen.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
-import 'package:e_commerce/features/auth/models/category_model.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/auth/regester/register.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:e_commerce/features/splash/splash.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +17,7 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {

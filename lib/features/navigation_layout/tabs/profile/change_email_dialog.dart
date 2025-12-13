@@ -5,140 +5,221 @@ import 'package:flutter/material.dart' hide TextField;
 
 class ChangeEmailDialog extends StatefulWidget {
   final String currentEmail;
-
   const ChangeEmailDialog({super.key, required this.currentEmail});
-
   @override
   State<ChangeEmailDialog> createState() => _ChangeEmailDialogState();
 }
-
 class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
   final TextEditingController _newEmailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  bool _requirePassword = true ;
 
   Future<void> _changeEmail(BuildContext context) async {
-    if (_newEmailController.text.isEmpty) {
-      _showErrorSnackBar(context, 'Please enter a new email address');
+    if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    if (_newEmailController.text == widget.currentEmail) {
+    // Check if new email is same as current
+    if (_newEmailController.text.trim().toLowerCase() == 
+        widget.currentEmail.toLowerCase()) {
       _showErrorSnackBar(context, 'New email must be different from current email');
       return;
     }
-
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(_newEmailController.text)) {
-      _showErrorSnackBar(context, 'Please enter a valid email address');
-      return;
-    }
-
-    if (_requirePassword && _passwordController.text.isEmpty) {
-      _showErrorSnackBar(context, 'Please enter your current password for verification');
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
-      await SupabaseService.changeEmail(newEmail: _newEmailController.text.trim());
-      
+      await SupabaseService.changeEmail(
+        newEmail: _newEmailController.text.trim(),
+        currentPassword: _passwordController.text,
+      );
+      if (!context.mounted) return;
       _showSuccessSnackBar(
         context, 
-        'Email change requested. Please check your new email for confirmation.'
+        'Email change requested. Please check both your old and new email for confirmation links.'
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true); // Return true to indicate success
     } catch (e) {
-      _showErrorSnackBar(context, 'Failed to change email: $e');
+      if (!context.mounted) return;
+      String errorMessage = e.toString().replaceAll('Exception: ', '');
+      _showErrorSnackBar(context, errorMessage);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-
   void _showSuccessSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 5),
+      ),
     );
   }
-
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 4),
+      ),
     );
   }
-
   @override
   void dispose() {
     _newEmailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Change Email'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Current Email: ${widget.currentEmail}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+      title: Row(
+        children: [
+          Icon(Icons.email, color: AppColors.blue),
+          const SizedBox(width: 8),
+          const Text('Change Email'),
+        ],
+      ),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Current Email Display
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.email_outlined, 
+                      color: Colors.grey[600], 
+                      size: 20
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current Email',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.currentEmail,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            
-            if (_requirePassword)
-              Column(
-                children: [
-                  TextField(
-                    title: 'Current Password',
-                    hintText: 'Enter your current password for verification',
-                    controller: _passwordController,
-                    obscureText: true,
-                    showObscureTextToggle: true,
-                  ),
-                  const SizedBox(height: 16),
-                ],
+              const SizedBox(height: 20),
+              
+              // Current Password Field
+              TextField(
+                title: 'Current Password *',
+                hintText: 'Enter your current password',
+                controller: _passwordController,
+                obscureText: true,
+                showObscureTextToggle: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password is required for verification';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
               ),
-            
-            TextField(
-              title: 'New Email Address',
-              hintText: 'Enter new email address',
-              controller: _newEmailController,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 8),
-            
-            Text(
-              'Note: You will receive a confirmation email at the new address.',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
+              const SizedBox(height: 16),
+              
+              // New Email Field
+              TextField(
+                title: 'New Email Address *',
+                hintText: 'Enter new email address',
+                controller: _newEmailController,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'New email is required';
+                  }
+                  final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+                  if (!emailRegex.hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
+                  if (value.toLowerCase() == widget.currentEmail.toLowerCase()) {
+                    return 'New email must be different';
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.blue.withOpacity(0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppColors.blue,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'You will receive confirmation emails at both your old and new email addresses. Please verify the change by clicking the links.',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : () => _changeEmail(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blue,
+            disabledBackgroundColor: Colors.grey[300],
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
           child: _isLoading
               ? const SizedBox(
@@ -149,7 +230,12 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
                     color: Colors.white,
                   ),
                 )
-              : const Text('Change Email'),
+              : const Text(
+                  'Change Email',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ],
     );

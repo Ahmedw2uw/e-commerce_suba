@@ -192,6 +192,8 @@ class _SignUpState extends State<SignUp> {
                         obscureText: true,
                         controller: _passwordController,
                         validator: _validatePassword,
+                        
+                        
                       ),
                       const SizedBox(height: 20),
 
