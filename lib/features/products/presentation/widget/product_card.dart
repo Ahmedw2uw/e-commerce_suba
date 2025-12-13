@@ -38,8 +38,8 @@ class ProductCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              width: 100,
-              height: 100,
+              width: 150,
+              height: 150,
               color: Colors.grey.shade200,
               child: product.images.isNotEmpty
                   ? Image.network(
@@ -73,7 +73,8 @@ class ProductCard extends StatelessWidget {
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
+                //    لو اللون موجود هيعرضه
                 if (product.color != null) ...[
                   Row(
                     children: [
@@ -113,35 +114,35 @@ class ProductCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-              IconButton(
-  icon: Icon(
-    isFavorite ? Icons.favorite : Icons.favorite_outline,
-    color: isFavorite ? AppColors.red : AppColors.blue,
-    size: 20,
-  ),
-  onPressed: () async {
-    print('❤️ Added ${product.name} to favorites');
-    
-    // حفظ في SharedPreferences
-    _saveFavorite(product.id);
-    
-    // عمل الـ callback القديم
-    onFavorite();
-    
-    // إظهار رسالة للمستخدم
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isFavorite 
-            ? 'تمت إزالة ${product.name} من المفضلة' 
-            : 'تمت إضافة ${product.name} إلى المفضلة',
-        ),
-        duration: Duration(seconds: 1),
-        backgroundColor: isFavorite ? Colors.grey : Colors.pink,
-      ),
-    );
-  },
-),
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_outline,
+                    color: isFavorite ? AppColors.red : AppColors.blue,
+                    size: 20,
+                  ),
+                  onPressed: () async {
+                    print('❤️ Added ${product.name} to favorites');
+
+                    // حفظ في SharedPreferences
+                    _saveFavorite(product.id);
+
+                    // عمل الـ callback القديم
+                    onFavorite();
+
+                    // إظهار رسالة للمستخدم
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isFavorite
+                              ? 'تمت إزالة ${product.name} من المفضلة'
+                              : 'تمت إضافة ${product.name} إلى المفضلة',
+                        ),
+                        duration: Duration(seconds: 1),
+                        backgroundColor: isFavorite ? Colors.grey : Colors.pink,
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 4),
                 ElevatedButton(
                   onPressed: () {

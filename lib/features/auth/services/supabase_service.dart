@@ -1,5 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'package:e_commerce/features/auth/models/product_model.dart';
-import 'package:flutter/foundation.dart' hide Category;
+//import 'package:flutter/foundation.dart' hide Category;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:e_commerce/features/auth/models/user_model.dart';
 import 'package:e_commerce/features/auth/models/category_model.dart';
