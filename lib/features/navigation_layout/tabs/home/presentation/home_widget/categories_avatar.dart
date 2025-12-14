@@ -49,22 +49,14 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     }
   }
 
-  // دالة مساعدة للحصول على رابط الصورة
   String? _getImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
-
-    // إذا كان رابط كامل
-    if (imagePath.startsWith('http')) {
-      return imagePath;
-    }
-
+    if (imagePath.startsWith('http')) return imagePath;
     return null;
   }
 
-  // دالة مساعدة للحصول على الصورة الافتراضية بناءً على اسم الفئة
   String _getDefaultImage(String categoryName) {
     final lowerName = categoryName.toLowerCase();
-
     if (lowerName.contains('women') || lowerName.contains('female')) {
       return AppImages.women;
     } else if (lowerName.contains('men') || lowerName.contains('male')) {
@@ -76,7 +68,6 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     } else if (lowerName.contains('headphone') || lowerName.contains('audio')) {
       return AppImages.headphones;
     }
-
     return AppImages.laptop; // صورة افتراضية عامة
   }
 
@@ -86,57 +77,53 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     int? categoryId,
     bool isSelected = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: GestureDetector(
-        onTap: categoryId != null && widget.onCategorySelected != null
-            ? () => widget.onCategorySelected!(categoryId)
-            : null,
-        child: SizedBox(
-          width: 80,
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // ← إضافة مهمة
-            children: [
-              // Avatar مع تأثير التحديد
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.transparent,
-                    width: 2,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                          ),
-                        ]
-                      : null,
+    return GestureDetector(
+      onTap: categoryId != null && widget.onCategorySelected != null
+          ? () => widget.onCategorySelected!(categoryId)
+          : null,
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? Colors.blue : Colors.transparent,
+                  width: 2,
                 ),
-                child: CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Colors.grey[100],
-                  backgroundImage: image.startsWith('http')
-                      ? NetworkImage(image)
-                      : AssetImage(image) as ImageProvider,
-                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.3),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
               ),
-              const SizedBox(height: 6),
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? Colors.blue : Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              child: CircleAvatar(
+                radius: 35,
+                backgroundColor: Colors.grey[100],
+                backgroundImage: image.startsWith('http')
+                    ? NetworkImage(image)
+                    : AssetImage(image) as ImageProvider,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.blue : Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
@@ -144,9 +131,13 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
   Widget _buildStaticCategories() {
     return SizedBox(
-      height: 110,
-      child: ListView(
+      height: 220,
+      child: GridView.count(
         scrollDirection: Axis.horizontal,
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 0.8,
         children: [
           _buildCategory("Women's Fashion", AppImages.women),
           _buildCategory("Men's Fashion", AppImages.men),
@@ -160,32 +151,33 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
   Widget _buildLoadingState() {
     return SizedBox(
-      height: 110,
-      child: ListView(
+      height: 220,
+      child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        children: List.generate(5, (index) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: SizedBox(
-              width: 80,
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // ← إضافة مهمة
-                children: [
-                  CircleAvatar(radius: 35, backgroundColor: Colors.grey[200]),
-                  const SizedBox(height: 6),
-                  Container(
-                    width: 70,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: 6, // عدد العناصر الوهمية أثناء التحميل
+        itemBuilder: (context, index) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(radius: 35, backgroundColor: Colors.grey[200]),
+              const SizedBox(height: 6),
+              Container(
+                width: 70,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-            ),
+            ],
           );
-        }),
+        },
       ),
     );
   }
@@ -196,11 +188,18 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     }
 
     return SizedBox(
-      height: 200,
-
-      child: ListView(
+      height: 220,
+      child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        children: _categories.map((category) {
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
           final imageUrl = _getImageUrl(category.image);
           final image = imageUrl ?? _getDefaultImage(category.name);
           final isSelected = category.id == widget.selectedCategoryId;
@@ -211,22 +210,20 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
             categoryId: category.id,
             isSelected: isSelected,
           );
-        }).toList(),
+        },
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return _buildLoadingState();
-    }
+    if (_isLoading) return _buildLoadingState();
 
     if (_error != null) {
       return SizedBox(
-        height: 150, // مساحة أكبر للخطأ
+        height: 250,
         child: Column(
-          mainAxisSize: MainAxisSize.min, // ← إضافة مهمة
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildStaticCategories(),
             const SizedBox(height: 10),

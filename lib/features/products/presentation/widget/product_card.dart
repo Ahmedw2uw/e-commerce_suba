@@ -16,7 +16,7 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.product,
     required this.onFavorite,
-    this.isFavorite = false,
+    this.isFavorite = false, required Null Function() onAdd,
   });
 
   @override

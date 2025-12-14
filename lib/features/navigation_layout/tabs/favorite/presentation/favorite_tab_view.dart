@@ -57,6 +57,20 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
     }
   }
 
+  Future<void> _toggleFavorite(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      if (favoriteIds.contains(productId)) {
+        favoriteIds.remove(productId);
+        favoriteProducts.removeWhere((p) => p.id == productId);
+      } else {
+        favoriteIds.add(productId);
+        _loadFavoriteProducts(); // لإعادة جلب المنتج وإضافته للقائمة
+      }
+    });
+    await prefs.setString('favorites', json.encode(favoriteIds));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,12 +81,12 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
         elevation: 0,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : favoriteProducts.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: const [
                   Icon(Icons.favorite_border, size: 100, color: Colors.grey),
                   SizedBox(height: 20),
                   Text(
@@ -83,16 +97,14 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
               ),
             )
           : ListView.builder(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               itemCount: favoriteProducts.length,
               itemBuilder: (context, index) {
                 final product = favoriteProducts[index];
                 return ProductCard(
                   product: product,
-                  onFavorite: () async {
-                    // تحديث القائمة
-                    await _loadFavorites();
-                  },
+                  isFavorite: true,
+                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  },
                 );
               },
             ),
