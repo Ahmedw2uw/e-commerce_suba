@@ -34,6 +34,9 @@ abstract class AppImages {
   static const String men_banner = 'assets/images/Men_Banner.jpg';
   static const String women_banner = 'assets/images/Women_Banner.jpg';
   static const String defulteBanner = 'assets/images/bannerDefulte.jpg';
+  static const String homeBanner1 = 'assets/images/image1.png';
+  static const String homeBanner2 = 'assets/images/image2.png';
+  static const String homeBanner3 = 'assets/images/image3.png';
 }
 
 abstract class AppSvgs {
