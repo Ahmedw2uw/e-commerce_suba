@@ -24,7 +24,7 @@ abstract class AppImages {
   static const String suits = 'assets/images/Suits.jpg';
   static const String watches = 'assets/images/Watches.jpg';
   static const String t_shirts = 'assets/images/T-shirts.jpg';
-  static const String w_footwear =   'assets/images/W_Footwear.jpg';
+  static const String w_footwear = 'assets/images/W_Footwear.jpg';
   static const String w_t_shirts = 'assets/images/W_T-shirts.jpg';
   static const String w_bags = 'assets/images/W_Bags.jpg';
   static const String pijamas = 'assets/images/pijamas.jpg';
@@ -33,6 +33,7 @@ abstract class AppImages {
   static const String dresses = 'assets/images/Dresses.jpg';
   static const String men_banner = 'assets/images/Men_Banner.jpg';
   static const String women_banner = 'assets/images/Women_Banner.jpg';
+  static const String defulteBanner = 'assets/images/bannerDefulte.jpg';
 }
 
 abstract class AppSvgs {

@@ -5,7 +5,7 @@ import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_banner.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/categories/state/category_state.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,10 +59,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
       return _buildCategoriesView(state);
     }
 
-    // الحالة الأولية - يمكنك عرض شاشة تحميل أو رسالة
-    return const Center(
-      child: Text('Select a category to view products'),
-    );
+    return const Center(child: Text('Select a category to view products'));
   }
 
   Widget _buildCategoriesView(CategoryLoaded state) {
@@ -77,9 +74,10 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
             itemBuilder: (context, index) {
               final category = state.categories[index];
               final isSelected = state.selectedIndex == index;
-              
+
               return GestureDetector(
-                onTap: () => context.read<CategoryCubit>().changeCategory(index),
+                onTap: () =>
+                    context.read<CategoryCubit>().changeCategory(index),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 16,
@@ -111,51 +109,55 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
         // محتوى التصنيف المحدد
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // عنوان التصنيف
-                Text(
-                  state.categories[state.selectedIndex].name,
-                  style: TextStyle(
-                    color: AppColors.darkBlue,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // البانر (يمكنك تعديله بناءً على التصنيف)
-                CategoryBanner(
-                  title: state.categories[state.selectedIndex].name,
-                  imageUrl: _getBannerImage(state.selectedIndex),
-                ),
-
-                const SizedBox(height: 20),
-
-                // المنتجات
-                if (state.products.isNotEmpty)
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: state.products.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.8,
+            child: Align(
+              alignment: Alignment.topLeft, // يضمن أن المحتوى في أعلى الشاشة
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      state.categories[state.selectedIndex].name,
+                      style: TextStyle(
+                        color: AppColors.darkBlue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      final product = state.products[index];
-                      return _buildProductItem(product);
-                    },
-                  )
-                else
-                  const Center(
-                    child: Text('No products in this category'),
                   ),
-              ],
+                  const SizedBox(height: 20),
+
+                  // البانر
+                  CategoryBanner(
+                    title: state.categories[state.selectedIndex].name,
+                    imageUrl: _getBannerImage(state.selectedIndex),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // المنتجات
+                  if (state.products.isNotEmpty)
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: state.products.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: 0.8,
+                          ),
+                      itemBuilder: (context, index) {
+                        final product = state.products[index];
+                        return _buildProductItem(product);
+                      },
+                    )
+                  else
+                    const Center(child: Text('No products in this category')),
+                ],
+              ),
             ),
           ),
         ),
@@ -206,13 +208,11 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
   }
 
   String _getBannerImage(int selectedIndex) {
-    // يمكنك تغيير هذا بناءً على التصنيفات الفعلية
     if (selectedIndex == 0) {
       return AppImages.men_banner;
-    } else if (selectedIndex == 1) {
+    } else if (selectedIndex == 10) {
       return AppImages.women_banner;
     }
-    // يمكنك إضافة المزيد أو استخدام صورة افتراضية
-    return AppImages.men_banner; // افتراضية
+    return AppImages.men_banner;
   }
 }

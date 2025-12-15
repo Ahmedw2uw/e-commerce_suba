@@ -3,7 +3,7 @@
 import 'package:e_commerce/features/auth/models/category_model.dart';
 import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/repostry/category_repository.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/categories/state/category_state.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoryCubit extends Cubit<CategoryState> {

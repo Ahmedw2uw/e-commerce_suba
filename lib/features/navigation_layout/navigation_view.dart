@@ -2,9 +2,9 @@ import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/categories_tab_view.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/favorite/presentation/favorite_tab_view.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/profile_tab_view.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/home_appbar.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/home_bottom_navigation_bar_item.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/home_screen.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_appbar.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_bottom_navigation_bar_item.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 
