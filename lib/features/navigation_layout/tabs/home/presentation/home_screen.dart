@@ -2,8 +2,8 @@ import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/banner_home_screen.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/categories_avatar.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_slider.dart';
 import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const BannerHomeScreen(),
+              const HomeSlider(),
               const SizedBox(height: 25),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
