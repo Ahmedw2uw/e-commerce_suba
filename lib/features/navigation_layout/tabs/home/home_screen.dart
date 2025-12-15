@@ -6,6 +6,7 @@ import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/bann
 import 'package:e_commerce/features/navigation_layout/tabs/home/home_widget/categories_avatar.dart';
 import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
+import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,15 +20,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _homeAppliances = [];
   bool _isLoadingHomeAppliances = true;
+  
   @override
   void initState() {
     super.initState();
     // تحميل المنتجات المميزة عند فتح الشاشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductsBloc>().add(
-        LoadFeaturedProductsEvent(),
-      ); // context.read<ProductsBloc>().add(LoadProductsEvent());
-      context.read<ProductsBloc>().add(LoadProductsEvent()); // أو:
+      context.read<ProductsBloc>().add(LoadFeaturedProductsEvent());
+      context.read<ProductsBloc>().add(LoadProductsEvent());
       _loadHomeAppliances();
     });
   }
@@ -69,15 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
               BlocBuilder<ProductsBloc, ProductsState>(
                 builder: (context, state) {
-                  print('🏠 HomeScreen - Products State:');
-                  print('   - Status: ${state.status}');
-                  print(
-                    '   - Featured Products: ${state.featuredProducts.length}',
-                  );
-                  print('   - All Products: ${state.products.length}');
-                  if (state.status == ProductsStatus.failure) {
-                    print('   ❌ Error: ${state.errorMessage}');
-                  }
                   if (state.status == ProductsStatus.loading &&
                       state.featuredProducts.isEmpty) {
                     return const Center(
@@ -87,26 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
 
                   if (state.featuredProducts.isEmpty) {
-                    return _buildProductsGrid(state.products);
-                    // return Container(
-                    //   height: 200,
-                    //   alignment: Alignment.center,
-                    //   child: const Column(
-                    //     mainAxisAlignment: MainAxisAlignment.center,
-                    //     children: [
-                    //       Icon(
-                    //         Icons.local_offer_outlined,
-                    //         size: 50,
-                    //         color: Colors.grey,
-                    //       ),
-                    //       SizedBox(height: 10),
-                    //       Text(
-                    //         'No featured products yet',
-                    //         style: TextStyle(color: Colors.grey),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // );
+                    return _buildProductsGrid(context, state.products);
                   }
 
                   return SizedBox(
@@ -129,6 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               product: product,
                               onFavorite: () {
                                 // TODO: إضافة للمفضلة
+                              },
+                              onTap: () { // <--- إضافة onTap هنا
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDetails(
+                                      productId: product.id,
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                           ),
@@ -230,17 +212,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Column(
                     children: [
                       Wrap(
-                        spacing: 12, // المسافة الأفقية
-                        runSpacing: 12, // المسافة الرأسية
+                        spacing: 12,
+                        runSpacing: 12,
                         children: List.generate(state.products.length, (index) {
                           final product = state.products[index];
                           return SizedBox(
-                            width:
-                                (MediaQuery.of(context).size.width - 44) /
-                                2, // حساب العرض
+                            width: (MediaQuery.of(context).size.width - 44) / 2,
                             child: ProductCard(
                               product: product,
-                              onFavorite: () {},
+                              onFavorite: () {}, // <--- تبقى زي ما هي
+                              onTap: () { // <--- إضافة onTap هنا
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDetails(
+                                      productId: product.id,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           );
                         }),
@@ -339,34 +329,45 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-Widget _buildProductsGrid(List<Product> products) {
-  if (products.isEmpty) {
-    return const Center(
-      child: Text('No products available'),
-      heightFactor: 200,
+  // تحديث دالة _buildProductsGrid لتأخذ context
+  Widget _buildProductsGrid(BuildContext context, List<Product> products) {
+    if (products.isEmpty) {
+      return const Center(
+        child: Text('No products available'),
+        heightFactor: 200,
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.75,
+      ),
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return ProductCard(
+          product: product,
+          onFavorite: () {
+            print('Added ${product.name} to favorites');
+          },
+          onTap: () { // <--- إضافة onTap هنا
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetails(
+                  productId: product.id,
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
-
-  return GridView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 0.75,
-    ),
-    itemCount: products.length,
-    itemBuilder: (context, index) {
-      final product = products[index];
-      return ProductCard(
-        product: product,
-        onFavorite: () {
-          print('Added ${product.name} to favorites');
-        },
-      );
-    },
-  );
 }
