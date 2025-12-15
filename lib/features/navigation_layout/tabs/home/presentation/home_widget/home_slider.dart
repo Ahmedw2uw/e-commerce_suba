@@ -57,7 +57,7 @@ class _HomeSliderState extends State<HomeSlider> {
             items: myItems,
           ),
           Container(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.only(top: 10, bottom: 15, left: 0, right: 0),
             child: Align(
               alignment: Alignment.bottomCenter,
               child: AnimatedSmoothIndicator(

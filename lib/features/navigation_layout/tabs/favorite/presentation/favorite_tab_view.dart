@@ -1,3 +1,4 @@
+import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -104,7 +105,16 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
                 return ProductCard(
                   product: product,
                   isFavorite: true,
-                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  },
+                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  }, onTap: () { // <--- إضافة onTap هنا
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDetails(
+                                      productId: product.id,
+                                    ),
+                                  ),
+                                );
+                              },
                 );
               },
             ),

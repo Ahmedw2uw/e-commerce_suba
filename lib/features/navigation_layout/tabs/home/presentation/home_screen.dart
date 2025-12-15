@@ -6,6 +6,7 @@ import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/hom
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_slider.dart';
 import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
+import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:convert';
@@ -73,13 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
               const HomeSlider(),
               const SizedBox(height: 25),
               const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     "Categories",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Text("View all", style: TextStyle(color: Colors.blueAccent)),
                 ],
               ),
               const SizedBox(height: 15),
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
 
                   print('Category selected: $id');
-                 //هنتقل لصفحه لعرض المنتجات الخاصه بال category
+                  //هنتقل لصفحه لعرض المنتجات الخاصه بال category
                 },
               ),
               const SizedBox(height: 25),
@@ -134,7 +134,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: ProductCard(
                             product: product,
                             onFavorite: () => _toggleFavorite(product.id),
-                            isFavorite: isFav, onAdd: () {  },
+                            isFavorite: isFav,
+                            onAdd: () {},
+                            onTap: () {
+                              // <--- إضافة onTap هنا
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProductDetails(productId: product.id),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
@@ -237,7 +248,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ProductCard(
                           product: product,
                           onFavorite: () => _toggleFavorite(product.id),
-                          isFavorite: isFav, onAdd: () {  },
+                          isFavorite: isFav,
+                          onAdd: () {},
+                          onTap: () {
+                            // <--- إضافة onTap هنا
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProductDetails(productId: product.id),
+                              ),
+                            );
+                          },
                         ),
                       );
                     }).toList(),

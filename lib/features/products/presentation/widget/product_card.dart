@@ -11,163 +11,169 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onFavorite;
   final bool isFavorite;
+   final VoidCallback? onTap;
+  
 
   const ProductCard({
     super.key,
     required this.product,
     required this.onFavorite,
     this.isFavorite = false, required Null Function() onAdd,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // صورة المنتج
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 150,
-              height: 150,
-              color: Colors.grey.shade200,
-              child: product.images.isNotEmpty
-                  ? Image.network(
-                      product.images[0],
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('❌ فشل تحميل صورة المنتج: $error');
-                        return const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
-                        );
-                      },
-                    )
-                  : const Icon(Icons.image_not_supported, color: Colors.grey),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // صورة المنتج
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 150,
+                height: 150,
+                color: Colors.grey.shade200,
+                child: product.images.isNotEmpty
+                    ? Image.network(
+                        product.images[0],
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('❌ فشل تحميل صورة المنتج: $error');
+                          return const Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                          );
+                        },
+                      )
+                    : const Icon(Icons.image_not_supported, color: Colors.grey),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-
-          // تفاصيل المنتج
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+            const SizedBox(width: 12),
+      
+            // تفاصيل المنتج
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+      
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                //    لو اللون موجود هيعرضه
-                if (product.color != null) ...[
-                  Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: _getColorFromString(product.color!),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade300),
+                  const SizedBox(height: 8),
+                  //    لو اللون موجود هيعرضه
+                  if (product.color != null) ...[
+                    Row(
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: _getColorFromString(product.color!),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        product.color!,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Text(
+                          product.color!,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  Text(
+                    'EGP ${product.price.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+      
+            // الأزرار - المعدل
+            Container(
+              width: 70, // ← عرض ثابت بدل Flexible
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_outline,
+                      color: isFavorite ? AppColors.red : AppColors.blue,
+                      size: 20,
+                    ),
+                    onPressed: () async {
+                      print('❤️ Added ${product.name} to favorites');
+      
+                      // حفظ في SharedPreferences
+                      _saveFavorite(product.id);
+      
+                      // عمل الـ callback القديم
+                      onFavorite();
+      
+                      // إظهار رسالة للمستخدم
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFavorite
+                                ? 'تمت إزالة ${product.name} من المفضلة'
+                                : 'تمت إضافة ${product.name} إلى المفضلة',
+                          ),
+                          duration: Duration(seconds: 1),
+                          backgroundColor: isFavorite ? Colors.grey : Colors.pink,
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 4),
-                ],
-                Text(
-                  'EGP ${product.price.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.blue,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // الأزرار - المعدل
-          Container(
-            width: 70, // ← عرض ثابت بدل Flexible
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_outline,
-                    color: isFavorite ? AppColors.red : AppColors.blue,
-                    size: 20,
-                  ),
-                  onPressed: () async {
-                    print('❤️ Added ${product.name} to favorites');
-
-                    // حفظ في SharedPreferences
-                    _saveFavorite(product.id);
-
-                    // عمل الـ callback القديم
-                    onFavorite();
-
-                    // إظهار رسالة للمستخدم
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isFavorite
-                              ? 'تمت إزالة ${product.name} من المفضلة'
-                              : 'تمت إضافة ${product.name} إلى المفضلة',
-                        ),
-                        duration: Duration(seconds: 1),
-                        backgroundColor: isFavorite ? Colors.grey : Colors.pink,
+                  ElevatedButton(
+                    onPressed: () {
+                      _addToCartWithDebug(context, product);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 4),
-                ElevatedButton(
-                  onPressed: () {
-                    _addToCartWithDebug(context, product);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.blue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                    child: const Text(
+                      'Add',
+                      style: TextStyle(fontSize: 12), // ← اختصر النص
                     ),
                   ),
-                  child: const Text(
-                    'Add',
-                    style: TextStyle(fontSize: 12), // ← اختصر النص
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
