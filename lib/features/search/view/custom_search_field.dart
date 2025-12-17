@@ -3,16 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class CustomSearchField extends StatelessWidget {
-  const CustomSearchField({super.key});
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted; // ⬅️ أضف هذه السطر
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+
+  const CustomSearchField({
+    super.key, 
+    this.onChanged,
+    this.onSubmitted, // ⬅️ أضف هذه السطر
+    this.controller,
+    this.focusNode,
+  });
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted, // ⬅️ استخدمها هنا
       textInputAction: TextInputAction.search,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        prefixIcon: SvgPicture.asset(AppSvgs.searchIcon, fit: BoxFit.scaleDown),
+        prefixIcon:
+            SvgPicture.asset(AppSvgs.searchIcon, fit: BoxFit.scaleDown),
         hintText: "search",
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(1000),

@@ -23,7 +23,6 @@ class _SignUpState extends State<SignUp> {
 
   bool _isLoading = false;
 
-  // Full Name Validator
   String? _validateFullName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your full name';
@@ -34,7 +33,6 @@ class _SignUpState extends State<SignUp> {
     return null;
   }
 
-  // Phone Number Validator
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your mobile number';
@@ -49,7 +47,6 @@ class _SignUpState extends State<SignUp> {
     return null;
   }
 
-  // Email Validator
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please Enter Your Email';
@@ -66,7 +63,6 @@ class _SignUpState extends State<SignUp> {
     return null;
   }
 
-  // Password Validator
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
@@ -156,7 +152,6 @@ class _SignUpState extends State<SignUp> {
                       Center(child: Image.asset(AppImages.logo, height: 100)),
                       const SizedBox(height: 20),
 
-                      // Full Name Field
                       AuthTextField(
                         title: "Full Name",
                         hintText: "Enter Your Full Name",
@@ -165,7 +160,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Phone Number Field
                       AuthTextField(
                         title: "Mobile Number",
                         hintText: "Enter Your Mobile Number",
@@ -175,7 +169,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Email Field
                       AuthTextField(
                         title: "Email Address",
                         hintText: "Enter Your Email",
@@ -185,7 +178,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Password Field
                       AuthTextField(
                         title: "Password",
                         hintText: "Enter Your Password",
@@ -195,7 +187,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Sign Up Button
                       _isLoading
                           ? const Center(
                               child: CircularProgressIndicator(

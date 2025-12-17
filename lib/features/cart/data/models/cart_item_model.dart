@@ -1,4 +1,3 @@
-// lib/features/cart/data/models/cart_item_model.dart
 
 import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';

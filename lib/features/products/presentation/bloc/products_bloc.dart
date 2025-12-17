@@ -9,7 +9,8 @@ part 'products_state.dart';
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   final ProductsRepository productsRepository;
 
-  ProductsBloc({required this.productsRepository}) : super(const ProductsState()) {
+  ProductsBloc({required this.productsRepository})
+      : super(const ProductsState()) {
     on<LoadProductsEvent>(_onLoadProducts);
     on<LoadProductsByCategoryEvent>(_onLoadProductsByCategory);
     on<LoadFeaturedProductsEvent>(_onLoadFeaturedProducts);
@@ -17,17 +18,19 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<LoadProductByIdEvent>(_onLoadProductById);
   }
 
+  // ================= Load All Products =================
   Future<void> _onLoadProducts(
     LoadProductsEvent event,
     Emitter<ProductsState> emit,
   ) async {
     emit(state.copyWith(status: ProductsStatus.loading));
-    
+
     try {
       final products = await productsRepository.getProducts();
       emit(state.copyWith(
         status: ProductsStatus.success,
         products: products,
+        allProducts: products, // 🔹 إضافة واحدة بس
         errorMessage: '',
       ));
     } catch (e) {
@@ -38,17 +41,20 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     }
   }
 
+  // ================= Load By Category =================
   Future<void> _onLoadProductsByCategory(
     LoadProductsByCategoryEvent event,
     Emitter<ProductsState> emit,
   ) async {
     emit(state.copyWith(status: ProductsStatus.loading));
-    
+
     try {
-      final products = await productsRepository.getProductsByCategory(event.categoryId);
+      final products =
+          await productsRepository.getProductsByCategory(event.categoryId);
       emit(state.copyWith(
         status: ProductsStatus.success,
         products: products,
+        allProducts: products, // 🔹 إضافة واحدة بس
         errorMessage: '',
       ));
     } catch (e) {
@@ -59,14 +65,16 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     }
   }
 
+  // ================= Featured Products =================
   Future<void> _onLoadFeaturedProducts(
     LoadFeaturedProductsEvent event,
     Emitter<ProductsState> emit,
   ) async {
     emit(state.copyWith(status: ProductsStatus.loading));
-    
+
     try {
-      final featuredProducts = await productsRepository.getFeaturedProducts();
+      final featuredProducts =
+          await productsRepository.getFeaturedProducts();
       emit(state.copyWith(
         status: ProductsStatus.success,
         featuredProducts: featuredProducts,
@@ -80,43 +88,42 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     }
   }
 
-  Future<void> _onSearchProducts(
+  // ================= Search Products =================
+  void _onSearchProducts(
     SearchProductsEvent event,
     Emitter<ProductsState> emit,
-  ) async {
-    if (event.query.isEmpty) {
-      emit(state.copyWith(products: const [], searchQuery: ''));
+  ) {
+    final query = event.query.toLowerCase();
+
+    // 🔹 التعديل الأساسي
+    if (query.isEmpty) {
+      emit(state.copyWith(
+        products: state.allProducts,
+        searchQuery: '',
+      ));
       return;
     }
 
+    final filteredProducts = state.allProducts.where((product) {
+      return product.name.toLowerCase().contains(query);
+    }).toList();
+
     emit(state.copyWith(
-      status: ProductsStatus.loading,
+      products: filteredProducts,
       searchQuery: event.query,
     ));
-    
-    try {
-      final products = await productsRepository.searchProducts(event.query);
-      emit(state.copyWith(
-        status: ProductsStatus.success,
-        products: products,
-        errorMessage: '',
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        status: ProductsStatus.failure,
-        errorMessage: e.toString(),
-      ));
-    }
   }
 
+  // ================= Load Product By ID =================
   Future<void> _onLoadProductById(
     LoadProductByIdEvent event,
     Emitter<ProductsState> emit,
   ) async {
     emit(state.copyWith(status: ProductsStatus.loading));
-    
+
     try {
-      final product = await productsRepository.getProductById(event.productId);
+      final product =
+          await productsRepository.getProductById(event.productId);
       emit(state.copyWith(
         status: ProductsStatus.success,
         selectedProduct: product,

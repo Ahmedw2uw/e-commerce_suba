@@ -22,7 +22,6 @@ class CartRepositoryImpl implements CartRepository {
       await localDataSource.saveCartItems(remoteItems);
       return remoteItems;
     } catch (e) {
-      print('Failed to fetch cart from server: $e');
       final localItems = await localDataSource.getCartItems();
       return localItems;
     }
@@ -39,7 +38,6 @@ class CartRepositoryImpl implements CartRepository {
         quantity: quantity,
       );
     } catch (e) {
-      print('Failed to add to cart on server: $e');
       throw Exception('Please check your internet connection');
     }
   }
@@ -49,7 +47,6 @@ class CartRepositoryImpl implements CartRepository {
     try {
       await remoteDataSource.removeFromCart(cartItemId);
     } catch (e) {
-      print('Failed to remove from cart on server: $e');
       throw Exception('Failed to remove item');
     }
   }
@@ -65,7 +62,6 @@ class CartRepositoryImpl implements CartRepository {
         newQuantity: newQuantity,
       );
     } catch (e) {
-      print('Failed to update quantity on server: $e');
       throw Exception('Failed to update quantity');
     }
   }
@@ -76,7 +72,6 @@ class CartRepositoryImpl implements CartRepository {
       await remoteDataSource.clearCart();
       await localDataSource.clearCart();
     } catch (e) {
-      print('Failed to clear cart: $e');
       throw Exception('Failed to clear cart');
     }
   }

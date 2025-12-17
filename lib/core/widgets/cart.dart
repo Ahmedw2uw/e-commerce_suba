@@ -54,7 +54,6 @@ class Cart extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,7 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_products_screen.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/categories_avatar.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_slider.dart';
 import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<Map<String, dynamic>> _homeAppliances = [];
   bool _isLoadingHomeAppliances = true;
   List<int> favoriteIds = [];
@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // <-- أضف هذا
     _loadFavorites();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductsBloc>().add(LoadFeaturedProductsEvent());
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         favoriteIds = ids.cast<int>();
       });
     } catch (e) {
-      print('❌ Error loading favorites: $e');
+      print(' Error loading favorites: $e');
     }
   }
 
@@ -85,13 +86,22 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 15),
               CategoriesAvatars(
                 selectedCategoryId: selectedCategoryId,
-                onCategorySelected: (id) {
+                onCategorySelected: (id, name) {
                   setState(() {
                     selectedCategoryId = id as int?;
                   });
 
                   print('Category selected: $id');
                   //هنتقل لصفحه لعرض المنتجات الخاصه بال category
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryProductsScreen(
+                        categoryId: id,
+                        categoryName: '$name ', // اسم مؤقت
+                      ),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 25),
@@ -107,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (state.status == ProductsStatus.loading &&
                       state.featuredProducts.isEmpty) {
                     return const Center(
-                      child: CircularProgressIndicator(),
                       heightFactor: 300,
+                      child: CircularProgressIndicator(),
                     );
                   }
 
@@ -272,6 +282,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _loadHomeAppliances() async {

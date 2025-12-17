@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class CategoriesAvatars extends StatefulWidget {
   final int? selectedCategoryId;
-  final Function(int)? onCategorySelected;
+  final Function(int,String)? onCategorySelected;
 
   const CategoriesAvatars({
     super.key,
@@ -45,7 +45,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
         _error = e.toString();
         _isLoading = false;
       });
-      print('❌ Error loading categories: $e');
+      print(' Error loading categories: $e');
     }
   }
 
@@ -79,7 +79,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
   }) {
     return GestureDetector(
       onTap: categoryId != null && widget.onCategorySelected != null
-          ? () => widget.onCategorySelected!(categoryId)
+          ? () => widget.onCategorySelected!(categoryId,name)
           : null,
       child: SizedBox(
         width: 80,

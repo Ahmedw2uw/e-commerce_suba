@@ -1,4 +1,3 @@
-// lib/main.dart
 import 'package:e_commerce/core/theme/app_theme.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/auth/regester/register.dart';
@@ -29,14 +28,10 @@ import 'features/navigation_layout/tabs/favorite/data/repositories/favorites_rep
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // تهيئة Hive للتخزين المحلي
   await Hive.initFlutter();
-  // await Hive.openBox('cart_box');
 
-  // تحميل متغيرات البيئة
   await dotenv.load(fileName: ".env");
 
-  // تهيئة Supabase
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
@@ -52,9 +47,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        // ====================
-        // CART DEPENDENCIES
-        // ====================
+
         RepositoryProvider<CartRemoteDataSource>(
           create: (context) => CartRemoteDataSourceImpl(
             supabaseClient: Supabase.instance.client,
@@ -70,9 +63,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
-        // ====================
-        // PRODUCTS DEPENDENCIES
-        // ====================
+
         RepositoryProvider<ProductsRepository>(
           create: (context) => ProductsRepositoryImpl(
             remoteDataSource: ProductsRemoteDataSourceImpl(
@@ -83,18 +74,13 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          // ====================
-          // BLOC PROVIDERS
-          // ====================
 
-          // Cart Bloc - مرة واحدة فقط
           BlocProvider<CartBloc>(
             create: (context) =>
                 CartBloc(cartRepository: context.read<CartRepository>())
-                  ..add(LoadCartEvent()), // تحميل السلة عند بدء التطبيق
+                  ..add(LoadCartEvent()), 
           ),
 
-          // Products Bloc
           BlocProvider<ProductsBloc>(
             create: (context) => ProductsBloc(
               productsRepository: context.read<ProductsRepository>(),
@@ -116,9 +102,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.getLightThemeData(),
           initialRoute: SplashScreen.routeName,
           routes: {
-            // ====================
-            // APP ROUTES
-            // ====================
+
             SplashScreen.routeName: (ctx) => const SplashScreen(),
             Login.routeName: (ctx) => Login(),
             SignUp.routeName: (ctx) => SignUp(),

@@ -51,7 +51,6 @@ class ProductCard extends StatelessWidget {
                         product.images[0],
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          print('❌ فشل تحميل صورة المنتج: $error');
                           return const Icon(
                             Icons.image_not_supported,
                             color: Colors.grey,
@@ -126,7 +125,6 @@ class ProductCard extends StatelessWidget {
                       size: 20,
                     ),
                     onPressed: () async {
-                      print('❤️ Added ${product.name} to favorites');
       
                       // حفظ في SharedPreferences
                       _saveFavorite(product.id);
@@ -134,13 +132,12 @@ class ProductCard extends StatelessWidget {
                       // عمل الـ callback القديم
                       onFavorite();
       
-                      // إظهار رسالة للمستخدم
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
                             isFavorite
-                                ? 'تمت إزالة ${product.name} من المفضلة'
-                                : 'تمت إضافة ${product.name} إلى المفضلة',
+                                ? ' deleted  ${product.name}  from favorates'
+                                : '  ${product.name} added to favorites',
                           ),
                           duration: Duration(seconds: 1),
                           backgroundColor: isFavorite ? Colors.grey : Colors.pink,
@@ -166,7 +163,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: const Text(
                       'Add',
-                      style: TextStyle(fontSize: 12), // ← اختصر النص
+                      style: TextStyle(fontSize: 12),
                     ),
                   ),
                 ],
@@ -180,23 +177,17 @@ class ProductCard extends StatelessWidget {
 
   void _saveFavorite(int productId) async {
     try {
-      // استخدم SharedPreferences
       final prefs = await SharedPreferences.getInstance();
 
-      // جيب الـ favorites الحالية
       final favoritesString = prefs.getString('favorites') ?? '[]';
       final List<dynamic> favorites = json.decode(favoritesString);
 
-      // تحقق إذا المنتج موجود
       if (favorites.contains(productId)) {
-        // أمسحه لو موجود
         favorites.remove(productId);
       } else {
-        // أضيفه لو مش موجود
         favorites.add(productId);
       }
 
-      // حفظ التحديث
       await prefs.setString('favorites', json.encode(favorites));
 
       print('✅ Saved favorite: $productId, All favorites: $favorites');
@@ -206,43 +197,31 @@ class ProductCard extends StatelessWidget {
   }
 
   void _addToCartWithDebug(BuildContext context, Product product) {
-    print('🛒 === بدء إضافة المنتج للسلة ===');
-    print('   المنتج: ${product.name}');
-    print('   السعر: ${product.price}');
-    print('   الـ ID: ${product.id}');
-    print('   الصور: ${product.images.length}');
 
     try {
       if (!context.mounted) {
-        print('❌ Context غير متاح');
         return;
       }
 
       final cartBloc = context.read<CartBloc>();
-      print('✅ CartBloc موجود');
 
       cartBloc.add(AddToCartEvent(product: product, quantity: 1));
 
-      print('✅ تم إرسال AddToCartEvent بنجاح');
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('تم إضافة ${product.name} إلى السلة'),
+          content: Text('fail add  ${product.name} to cart '),
           duration: const Duration(seconds: 1),
           backgroundColor: Colors.green,
         ),
       );
 
-      print('✅ تم عرض رسالة النجاح');
-      print('🛒 === انتهاء إضافة المنتج ===');
     } catch (e) {
-      print('❌ === خطأ في إضافة المنتج ===');
-      print('   الخطأ: $e');
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل الإضافة: ${e.toString()}'),
+            content: Text(' fail add: ${e.toString()}'),
             duration: const Duration(seconds: 3),
             backgroundColor: Colors.red,
           ),

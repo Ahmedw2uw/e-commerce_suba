@@ -35,10 +35,9 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
         isLoading = false;
       });
 
-      // جلب تفاصيل المنتجات
       _loadFavoriteProducts();
     } catch (e) {
-      print('❌ Error loading favorites: $e');
+      print(' Error loading favorites: $e');
       setState(() => isLoading = false);
     }
   }
@@ -54,7 +53,7 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
         favoriteProducts = favoriteProductsList;
       });
     } catch (e) {
-      print('❌ Error loading favorite products: $e');
+      print(' Error loading favorite products: $e');
     }
   }
 

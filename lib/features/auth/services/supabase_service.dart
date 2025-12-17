@@ -1,7 +1,5 @@
-// ignore_for_file: avoid_print
 
 import 'package:e_commerce/features/auth/models/product_model.dart';
-//import 'package:flutter/foundation.dart' hide Category;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:e_commerce/features/auth/models/user_model.dart';
 import 'package:e_commerce/features/auth/models/category_model.dart';
@@ -9,7 +7,6 @@ import 'package:e_commerce/features/auth/models/category_model.dart';
 class SupabaseService {
   static final SupabaseClient client = Supabase.instance.client;
 
-  // Sign up a new account
   static Future<UserModel> signUp({
     required String name,
     required String email,
@@ -26,8 +23,6 @@ class SupabaseService {
           'phone': phone,
         },
       );
-      print('SignUp Response Status: ${response.status}');
-      print('SignUp Response Data: ${response.data}');
       if (response.status != 201) {
         final errorData = response.data;
         throw Exception(errorData['error'] ?? 'Sign up failed');
@@ -45,17 +40,13 @@ class SupabaseService {
     }
   }
 
-  // Log in
   static Future<UserModel> login({
     required String email,
     required String password,
   }) async {
     try {
       print('Login attempt for: $email');
-      // final response = await _client.functions.invoke(
-      //   'login',
-      //   body: {'email': email, 'password': password},
-      // );
+
       final response = await client.auth.signInWithPassword(
         email: email,
         password: password,
@@ -64,10 +55,6 @@ class SupabaseService {
       print('Login Response Status: ${response.user}');
       print('Login Response Data: ${response.session}');
 
-      // if (response.status != 200) {
-      //   final errorData = response.data;
-      //   throw Exception(errorData['error'] ?? 'Login failed');
-      // }
 
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
@@ -78,19 +65,7 @@ class SupabaseService {
           .select()
           .eq('auth_user_id', response.user!.id)
           .single();
-      print('Customer data retrieved: $userData');
 
-      // final sessionData = response.data['session'];
-      // final userData = response.data['user'];
-      // if (sessionData != null && sessionData['access_token'] != null) {
-      //   try {
-      //     await _client.auth.setSession(sessionData['access_token']);
-      //     print('Session set successfully');
-      //   } catch (e) {
-      //     print('Error setting session: $e');
-      //   }
-      // }
-      // print('Login successful for user: ${userData['name']}');
       return UserModel.fromJson(userData);
     } catch (e) {
       print('Login Error Details: $e');
@@ -108,21 +83,16 @@ class SupabaseService {
   static Future<UserModel?> getCurrentUser() async {
     try {
       final authUser = client.auth.currentUser;
-      print('Current auth user: $authUser');
       if (authUser == null) {
-        print('No authenticated user found');
         return null;
       }
-      print('Fetching user data for auth ID: ${authUser.id}');
       final response = await client
           .from('customer')
           .select()
           .eq('auth_user_id', authUser.id)
           .single();
-      print('User data fetched successfully: ${response['name']}');
       return UserModel.fromJson(response);
     } catch (e) {
-      print('Error getting current user: $e');
       return null;
     }
   }
@@ -143,7 +113,6 @@ class SupabaseService {
     try {
       await client.auth.signOut();
     } catch (e) {
-      print('Error signing out: $e');
       throw Exception('Failed to sign out');
     }
   }
@@ -158,7 +127,6 @@ class SupabaseService {
       if (authUser == null) {
         throw Exception('No user logged in');
       }
-      // Update user profile
       final response = await client
           .from('customer')
           .update({'name': name, 'phone': phone})
@@ -216,13 +184,10 @@ class SupabaseService {
       return null;
     }
 
-    // إذا كان رابط كامل
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
 
-    // إذا كان اسم ملف فقط، نبني الرابط الكامل
-    // استبدل YOUR_PROJECT_ID بالمعرف الفعلي
     const baseStorageUrl =
         'https://YOUR_PROJECT_ID.supabase.co/storage/v1/object/public/';
     const bucketName = 'products_images'; // ← هذا اسم bucket الذي رأيته
@@ -230,7 +195,6 @@ class SupabaseService {
     return '$baseStorageUrl$bucketName/$imagePath';
   }
 
-  // يمكنك إضافة هذا للتحقق
   static Future<void> testCategoryImage() async {
     try {
       final categories = await getCategories();
@@ -247,7 +211,6 @@ class SupabaseService {
 
   static Future<List<Map<String, dynamic>>> getHomeAppliances() async {
     try {
-      // استخدم الـ Edge Function المباشر
       final response = await client
           .from('product')
           .select('id, name, images, price, category_id')
@@ -257,7 +220,6 @@ class SupabaseService {
 
       print('📡 Home Appliances: ${response.length} items');
 
-      // التحويل الصحيح
       final products = response as List<dynamic>;
       return products.map((item) {
         return {
@@ -275,7 +237,6 @@ class SupabaseService {
     }
   }
 
-  // في SupabaseService أضف:
   //!------------------------------------------
   static Future<List<Product>> getAllProducts() async {
     try {
@@ -300,7 +261,6 @@ class SupabaseService {
     } catch (e) {
       print('Error fetching all products: $e');
 
-      // بديل: جلب منتجات من كل التصنيفات
       final categories = await getCategories();
       List<Product> allProducts = [];
 
@@ -317,12 +277,11 @@ class SupabaseService {
     }
   }
 
-  // 2. جلب المنتجات المميزة (بدون Edge Function)
   static Future<List<Product>> getAllProductsDirect() async {
     try {
       print('📡 Direct: Getting all products');
       final response =
-          await client // ← هنا كان فيه نقطتين زائد
+          await client
               .from('product')
               .select('''
           *,
@@ -340,7 +299,6 @@ class SupabaseService {
 
   static Future<List<Product>> getFeaturedProductsDirect() async {
     try {
-      print('📡 Direct: Getting featured products');
       final response = await client
           .from('product')
           .select('''
@@ -350,7 +308,6 @@ class SupabaseService {
           .eq('featured', true);
 
       if (response.isEmpty) {
-        print('⚠️ No featured products, returning first 3');
         final all = await getAllProductsDirect();
         return all.take(3).toList();
       }

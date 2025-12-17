@@ -1,4 +1,3 @@
-// lib/features/cart/presentation/screens/cart_screen.dart
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/features/cart/presentation/widget/cart_item_widget.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('🛒 === فتح شاشة السلة ===');
     
     return Scaffold(
       appBar: AppBar(
@@ -19,13 +17,11 @@ class CartScreen extends StatelessWidget {
         actions: [
           BlocBuilder<CartBloc, CartState>(
             builder: (context, state) {
-              print('🛒 حالة السلة: ${state.cartItems.length} منتجات');
               
               if (state.cartItems.isNotEmpty) {
                 return IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () {
-                    print('🗑️ طلب مسح السلة');
                     context.read<CartBloc>().add(ClearCartEvent());
                   },
                   tooltip: 'Clear Cart',
@@ -39,7 +35,6 @@ class CartScreen extends StatelessWidget {
       body: BlocConsumer<CartBloc, CartState>(
         listener: (context, state) {
           if (state.status == CartStatus.failure) {
-            print('❌ خطأ في السلة: ${state.errorMessage}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage),
@@ -49,31 +44,24 @@ class CartScreen extends StatelessWidget {
           }
           
           if (state.status == CartStatus.success) {
-            print('✅ حالة السلة محدثة: ${state.cartItems.length} منتج، المجموع: ${state.totalAmount}');
           }
         },
         builder: (context, state) {
-          print('🛒 بناء واجهة السلة - الحالة: ${state.status}');
-          print('   المنتجات: ${state.cartItems.length}');
-          print('   المجموع: ${state.totalAmount}');
-          print('   خطأ: ${state.errorMessage}');
-
+    
           if (state.status == CartStatus.loading) {
-            print('⏳ جاري تحميل السلة...');
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('جاري تحميل السلة...'),
+                  Text(' loading '),
                 ],
               ),
             );
           }
 
           if (state.cartItems.isEmpty) {
-            print('🛒 السلة فارغة');
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -85,11 +73,11 @@ class CartScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'سلة التسوق فارغة',
+                    'empty cart ',
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                   Text(
-                    'أضف منتجات للبدء',
+                    'add some products to your cart',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],
@@ -97,7 +85,6 @@ class CartScreen extends StatelessWidget {
             );
           }
 
-          print('🛒 عرض ${state.cartItems.length} منتج في السلة');
           
           return Column(
             children: [
@@ -108,18 +95,18 @@ class CartScreen extends StatelessWidget {
                   itemCount: state.cartItems.length,
                   itemBuilder: (context, index) {
                     final item = state.cartItems[index];
-                    print('   المنتج ${index + 1}: ${item.product.name} × ${item.quantity}');
+                    print('   product ${index + 1}: ${item.product.name} × ${item.quantity}');
                     
                     return CartItemWidget(
                       item: item,
                       onRemove: () {
-                        print("`🗑️: ${item.product.name}`");
+                        print("`: ${item.product.name}`");
                         context.read<CartBloc>().add(
                           RemoveFromCartEvent(cartItemId: item.id),
                         );
                       },
                       onQuantityChanged: (newQuantity) {
-                        print("🔄  ${item.product.name} $newQuantity");
+                        print("  ${item.product.name} $newQuantity");
                         context.read<CartBloc>().add(
                           UpdateCartItemQuantityEvent(
                             cartItemId: item.id,
@@ -145,7 +132,7 @@ class CartScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'عدد المنتجات:',
+                          ' product count:',
                           style: TextStyle(fontSize: 16),
                         ),
                         Text(
@@ -162,7 +149,7 @@ class CartScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'المجموع الكلي:',
+                          ' sumition :',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                         ),
                         Text(
@@ -181,8 +168,7 @@ class CartScreen extends StatelessWidget {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          print('💰 الانتقال للدفع');
-                          // TODO: الانتقال لشاشة الدفع
+                          // TODO: navigate to the checkout screen
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -191,7 +177,7 @@ class CartScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Text(
-                          'إتمام الشراء',
+                          ' Proceed to Checkout',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),

@@ -21,7 +21,6 @@ class _LoginState extends State<Login> {
 
   bool _isLoading = false;
 
-  // Email Validator
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please Enter Your Email';
@@ -38,7 +37,6 @@ class _LoginState extends State<Login> {
     return null;
   }
 
-  // Password Validator
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
@@ -131,7 +129,6 @@ class _LoginState extends State<Login> {
                 ),
                 const SizedBox(height: 30),
 
-                // Email Field with Validation
                 TextFormField(
                   controller: _emailController,
                   validator: _validateEmail,
@@ -173,7 +170,6 @@ class _LoginState extends State<Login> {
 
                 const SizedBox(height: 20),
 
-                // Password Field with Validation
                 TextFormField(
                   controller: _passwordController,
                   validator: _validatePassword,

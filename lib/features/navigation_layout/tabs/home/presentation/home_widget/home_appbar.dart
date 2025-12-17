@@ -3,7 +3,17 @@ import 'package:flutter/material.dart';
 
 class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
   final int tabIndex;
-  const HomeAppbar({super.key, required this.tabIndex});
+  final TextEditingController? searchController;
+  final FocusNode? searchFocusNode;
+  final ValueChanged<String>? onSearchSubmitted; // ⬅️ أضف هذه السطر
+
+  const HomeAppbar({
+    super.key, 
+    required this.tabIndex,
+    this.searchController,
+    this.searchFocusNode,
+    this.onSearchSubmitted, // ⬅️ أضف هذه السطر
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +28,11 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
               )
               : PreferredSize(
                 preferredSize: preferredSize,
-                child: const SearchAndCartWidget(),
+                child: SearchAndCartWidget(
+                  searchController: searchController,
+                  searchFocusNode: searchFocusNode,
+                  onSearchSubmitted: onSearchSubmitted, // ⬅️ مررها هنا
+                ),
               ),
     );
   }

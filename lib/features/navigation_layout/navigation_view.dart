@@ -5,6 +5,7 @@ import 'package:e_commerce/features/navigation_layout/tabs/profile/profile_tab_v
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_appbar.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_bottom_navigation_bar_item.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_screen.dart';
+import 'package:e_commerce/features/search/view/search_results_screen.dart'; // ⬅️ أضف هذا
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -18,7 +19,9 @@ class NavigationView extends StatefulWidget {
 
 class _NavigationViewState extends State<NavigationView> {
   ValueNotifier<int> index = ValueNotifier(0);
-
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  
   List<Widget> pages = [
     const HomeScreen(),
     const CategoriesTabView(),
@@ -27,11 +30,49 @@ class _NavigationViewState extends State<NavigationView> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.trim();
+    
+  }
+
+  void _navigateToSearchResults() {
+    final query = _searchController.text.trim();
+    
+    if (query.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SearchResultsScreen(initialQuery: query),
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: index,
       builder: (context, value, child) => Scaffold(
-        appBar: HomeAppbar(tabIndex: index.value),
+        appBar: HomeAppbar(
+          tabIndex: index.value,
+          searchController: _searchController,
+          searchFocusNode: _searchFocusNode,
+          onSearchSubmitted: (query) {
+            _navigateToSearchResults(); 
+          },
+        ),
         body: pages[value],
         bottomNavigationBar: ClipRRect(
           borderRadius: const BorderRadius.only(
