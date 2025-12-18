@@ -1,5 +1,5 @@
 // lib/features/products/data/repositories/products_repository_impl.dart
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/products/data/datasource/products_remote_data_source.dart';
 import 'package:e_commerce/features/products/domain/repositories/products_repository.dart';

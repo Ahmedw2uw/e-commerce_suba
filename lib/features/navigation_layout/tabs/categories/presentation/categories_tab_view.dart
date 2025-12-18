@@ -2,12 +2,14 @@
 
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_banner.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 class CategoriesTabView extends StatefulWidget {
   const CategoriesTabView({super.key});
@@ -36,7 +38,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
 
   Widget _buildContent(CategoryState state) {
     if (state is CategoryLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: SizedBox(child: Lottie.asset(AppLottie.loading)));
     }
 
     if (state is CategoryError) {

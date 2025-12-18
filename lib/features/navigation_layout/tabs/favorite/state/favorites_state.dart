@@ -1,5 +1,5 @@
 // lib/features/favorites/cubit/favorites_state.dart
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 
 sealed class FavoritesState {
   const FavoritesState();

@@ -1,7 +1,6 @@
 // lib/features/navigation_layout/tabs/categories/cubit/category_cubit.dart
 
 import 'package:e_commerce/features/auth/models/category_model.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/repostry/category_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +11,6 @@ class CategoryCubit extends Cubit<CategoryState> {
   CategoryCubit(this._repository) : super(CategoryInitial());
 
   List<Category> _categories = [];
-  int _selectedIndex = 0;
 
   Future<void> loadCategories() async {
     emit(CategoryLoading());
@@ -45,7 +43,6 @@ class CategoryCubit extends Cubit<CategoryState> {
     
     emit(CategoryLoading());
     try {
-      _selectedIndex = index;
       
       final products = await _repository.fetchProductsByCategory(
         _categories[index].id,

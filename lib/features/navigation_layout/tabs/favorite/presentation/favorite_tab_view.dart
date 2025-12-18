@@ -1,8 +1,10 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 
@@ -81,7 +83,7 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
         elevation: 0,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ?  Center(child:Lottie.asset(AppLottie.loading),)
           : favoriteProducts.isEmpty
           ? Center(
               child: Column(

@@ -1,9 +1,11 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
 import 'package:flutter/material.dart' hide TextField;
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/auth/models/user_model.dart';
+import 'package:lottie/lottie.dart';
 
 class ProfileTabView extends StatefulWidget {
   const ProfileTabView({super.key});
@@ -246,9 +248,9 @@ class _ProfileTabViewState extends State<ProfileTabView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _currentUser == null) {
-      return const Scaffold(
+      return  Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(child: Center(child: Lottie.asset(AppLottie.loading),)),
       );
     }
 
@@ -472,13 +474,10 @@ class _ProfileTabViewState extends State<ProfileTabView> {
                       backgroundColor: AppColors.blue,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ?  SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                            child: Lottie.asset(AppLottie.loading),
                           )
                         : const Text('Save Address'),
                   ),
@@ -569,13 +568,11 @@ class _ProfileTabViewState extends State<ProfileTabView> {
               ),
             ),
             child: _isLoading
-                ? const SizedBox(
+                ?  SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
+                    child:Lottie.asset(AppLottie.loading),
+                  
                   )
                 : const Text(
                     'Save Changes',

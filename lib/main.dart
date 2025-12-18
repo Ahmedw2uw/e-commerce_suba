@@ -12,10 +12,10 @@ import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/cate
 import 'package:e_commerce/features/navigation_layout/tabs/categories/repostry/category_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/favorite/cubit/favorites_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/favorite/data/datasource/favorites_remote_data_source.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:e_commerce/features/products/data/datasource/products_remote_data_source.dart';
 import 'package:e_commerce/features/products/data/repositories/products_repository_impl.dart';
 import 'package:e_commerce/features/products/domain/repositories/products_repository.dart';
-import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:e_commerce/features/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,8 +81,8 @@ class MyApp extends StatelessWidget {
                   ..add(LoadCartEvent()), 
           ),
 
-          BlocProvider<ProductsBloc>(
-            create: (context) => ProductsBloc(
+          BlocProvider<ProductsCubit>(
+            create: (context) => ProductsCubit(
               productsRepository: context.read<ProductsRepository>(),
             ),
           ),

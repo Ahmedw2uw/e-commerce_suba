@@ -1,7 +1,9 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/features/cart/presentation/widget/cart_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -10,14 +12,12 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cart'),
         actions: [
           BlocBuilder<CartBloc, CartState>(
             builder: (context, state) {
-              
               if (state.cartItems.isNotEmpty) {
                 return IconButton(
                   icon: const Icon(Icons.delete_outline),
@@ -42,18 +42,16 @@ class CartScreen extends StatelessWidget {
               ),
             );
           }
-          
-          if (state.status == CartStatus.success) {
-          }
+
+          if (state.status == CartStatus.success) {}
         },
         builder: (context, state) {
-    
           if (state.status == CartStatus.loading) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  Lottie.asset(AppLottie.loading),
                   SizedBox(height: 16),
                   Text(' loading '),
                 ],
@@ -85,7 +83,6 @@ class CartScreen extends StatelessWidget {
             );
           }
 
-          
           return Column(
             children: [
               // قائمة المنتجات
@@ -95,8 +92,10 @@ class CartScreen extends StatelessWidget {
                   itemCount: state.cartItems.length,
                   itemBuilder: (context, index) {
                     final item = state.cartItems[index];
-                    print('   product ${index + 1}: ${item.product.name} × ${item.quantity}');
-                    
+                    print(
+                      '   product ${index + 1}: ${item.product.name} × ${item.quantity}',
+                    );
+
                     return CartItemWidget(
                       item: item,
                       onRemove: () {
@@ -150,7 +149,10 @@ class CartScreen extends StatelessWidget {
                       children: [
                         const Text(
                           ' sumition :',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         Text(
                           'ج.م ${state.totalAmount.toStringAsFixed(2)}',

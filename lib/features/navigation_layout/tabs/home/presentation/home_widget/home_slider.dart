@@ -11,7 +11,6 @@ class HomeSlider extends StatefulWidget {
 }
 
 class _HomeSliderState extends State<HomeSlider> {
-  @override
   final myItems = [
     BannerLeftText(
       imagePath: AppImages.homeBanner1,
@@ -67,7 +66,7 @@ class _HomeSliderState extends State<HomeSlider> {
                   dotHeight: 12,
                   dotWidth: 12,
                   spacing: 5,
-                  dotColor: Colors.white,
+                  dotColor: Colors.grey,
                   activeDotColor: Color(0xff004182),
                 ),
               ),
@@ -79,6 +78,7 @@ class _HomeSliderState extends State<HomeSlider> {
   }
 }
 
+// ignore: must_be_immutable
 class BannerLeftText extends StatelessWidget {
   BannerLeftText({
     super.key,
@@ -99,7 +99,7 @@ class BannerLeftText extends StatelessWidget {
         Image.asset(imagePath),
         Positioned(
           left: 40,
-          top: 25,
+          top: 15,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -107,7 +107,7 @@ class BannerLeftText extends StatelessWidget {
                 "UP TO",
                 style: TextStyle(
                   color: mainColor,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -117,7 +117,7 @@ class BannerLeftText extends StatelessWidget {
                     "25%",
                     style: TextStyle(
                       color: mainColor,
-                      fontSize: 33,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -133,7 +133,7 @@ class BannerLeftText extends StatelessWidget {
               ),
               Text(
                 "For all Headphones \n& AirPods",
-                style: TextStyle(color: mainColor, fontSize: 14),
+                style: TextStyle(color: mainColor, fontSize: 12),
               ),
               ElevatedButton(
                 onPressed: () {},
@@ -157,6 +157,7 @@ class BannerLeftText extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class BannerRightText extends StatelessWidget {
   BannerRightText({
     super.key,
@@ -177,7 +178,7 @@ class BannerRightText extends StatelessWidget {
         Image.asset(imagePath),
         Positioned(
           right: 40,
-          top: 25,
+          top: 15,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -185,7 +186,7 @@ class BannerRightText extends StatelessWidget {
                 "UP TO",
                 style: TextStyle(
                   color: mainColor,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -195,7 +196,7 @@ class BannerRightText extends StatelessWidget {
                     "$persentage%",
                     style: TextStyle(
                       color: mainColor,
-                      fontSize: 33,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -203,13 +204,13 @@ class BannerRightText extends StatelessWidget {
                     "OFF",
                     style: TextStyle(
                       color: mainColor,
-                      fontSize: 32,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              Text("$text", style: TextStyle(color: mainColor, fontSize: 14)),
+              Text("$text", style: TextStyle(color: mainColor, fontSize: 12)),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
@@ -217,9 +218,7 @@ class BannerRightText extends StatelessWidget {
                   backgroundColor: mainColor, // 🔥 لون الزر
                   foregroundColor: Color(0xff004182), // 🔥 لون النص والأيقونات
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      10,
-                    ), // 👈 هنا تغيّر الـ radius
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: Text("Shop Now"),

@@ -1,8 +1,10 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -27,10 +29,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
   void initState() {
     super.initState();
     _loadFavorites();
+
     // تحميل منتجات الـcategory
-    context.read<ProductsBloc>().add(
-      LoadProductsByCategoryEvent(categoryId: widget.categoryId),
-    );
+    context.read<ProductsCubit>().loadProductsByCategory(widget.categoryId);
   }
 
   Future<void> _loadFavorites() async {
@@ -65,19 +66,17 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
         title: Text('${widget.categoryName} Products'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: ()  {
+          onPressed: () {
             Navigator.pop(context);
-            
-            },
+          },
         ),
       ),
-      body: BlocBuilder<ProductsBloc, ProductsState>(
+      body: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
-          // استخدم state.products لأن الـhandler بيخزن فيها
           final products = state.products;
 
           if (state.status == ProductsStatus.loading) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: Lottie.asset(AppLottie.loading),);
           }
 
           if (products.isEmpty) {

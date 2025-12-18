@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart' hide Category;
-import 'category_model.dart';
+import '../../../../auth/models/category_model.dart';
 
 class Product {
   final int id;

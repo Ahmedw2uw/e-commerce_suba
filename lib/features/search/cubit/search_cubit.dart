@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/search/repostry/search_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

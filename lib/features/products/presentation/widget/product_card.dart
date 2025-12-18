@@ -3,7 +3,7 @@ import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../auth/models/product_model.dart';
+import '../../../navigation_layout/tabs/home/model/product_model.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,7 +11,7 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onFavorite;
   final bool isFavorite;
-   final VoidCallback? onTap;
+  final VoidCallback? onTap;
   
 
   const ProductCard({

@@ -1,5 +1,5 @@
 // lib/features/favorites/data/repositories/favorites_repository.dart
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/favorite/data/datasource/favorites_remote_data_source.dart';
 
 abstract class FavoritesRepository {

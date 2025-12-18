@@ -1,6 +1,6 @@
 // lib/features/cart/data/datasources/cart_remote_data_source.dart
 
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/cart/data/models/cart_item_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

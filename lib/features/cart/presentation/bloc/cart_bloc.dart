@@ -1,6 +1,6 @@
 // lib/features/cart/presentation/bloc/cart_bloc.dart
 import 'package:bloc/bloc.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:e_commerce/features/cart/domain/repositories/cart_repository.dart';

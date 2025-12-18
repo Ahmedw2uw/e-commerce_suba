@@ -1,5 +1,5 @@
 // lib/features/cart/domain/entities/cart_item_entity.dart
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:equatable/equatable.dart';
 
 class CartItemEntity extends Equatable {

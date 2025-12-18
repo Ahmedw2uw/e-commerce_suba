@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class CategoriesAvatars extends StatefulWidget {
   final int? selectedCategoryId;
-  final Function(int,String)? onCategorySelected;
+  final Function(int, String)? onCategorySelected;
 
   const CategoriesAvatars({
     super.key,
@@ -79,7 +79,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
   }) {
     return GestureDetector(
       onTap: categoryId != null && widget.onCategorySelected != null
-          ? () => widget.onCategorySelected!(categoryId,name)
+          ? () => widget.onCategorySelected!(categoryId, name)
           : null,
       child: SizedBox(
         width: 80,
@@ -87,22 +87,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? Colors.blue : Colors.transparent,
-                  width: 2,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
-                          blurRadius: 8,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : null,
-              ),
+              decoration: const BoxDecoration(shape: BoxShape.circle),
               child: CircleAvatar(
                 radius: 35,
                 backgroundColor: Colors.grey[100],
@@ -114,10 +99,10 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
             const SizedBox(height: 6),
             Text(
               name,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.blue : Colors.black87,
+                fontWeight: FontWeight.normal,
+                color: Colors.black87,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -135,8 +120,8 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
       child: GridView.count(
         scrollDirection: Axis.horizontal,
         crossAxisCount: 2,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 5,
         childAspectRatio: 0.8,
         children: [
           _buildCategory("Women's Fashion", AppImages.women),

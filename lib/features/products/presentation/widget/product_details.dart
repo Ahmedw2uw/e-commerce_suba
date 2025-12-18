@@ -1,16 +1,15 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:e_commerce/features/auth/models/product_model.dart';
-import 'package:e_commerce/features/products/presentation/bloc/products_bloc.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 class ProductDetails extends StatefulWidget {
   final int productId;
-  
-  const ProductDetails({
-    super.key,
-    required this.productId,
-  });
+
+  const ProductDetails({super.key, required this.productId});
 
   @override
   State<ProductDetails> createState() => _ProductDetailsPageState();
@@ -25,9 +24,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
   void initState() {
     super.initState();
     // تحميل بيانات المنتج
-    context.read<ProductsBloc>().add(
-      LoadProductByIdEvent(productId: widget.productId),
-    );
+    context.read<ProductsCubit>().loadProductById(widget.productId);
   }
 
   @override
@@ -40,13 +37,14 @@ class _ProductDetailsPageState extends State<ProductDetails> {
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: BlocBuilder<ProductsBloc, ProductsState>(
+      body: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
           if (state.status == ProductsStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return  Center(child: Lottie.asset(AppLottie.loading),);
           }
 
-          if (state.status == ProductsStatus.failure || state.selectedProduct == null) {
+          if (state.status == ProductsStatus.failure ||
+              state.selectedProduct == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -54,15 +52,15 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                   const Icon(Icons.error, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
-                    state.errorMessage.isNotEmpty 
-                      ? state.errorMessage 
-                      : 'فشل في تحميل المنتج',
+                    state.errorMessage.isNotEmpty
+                        ? state.errorMessage
+                        : 'فشل في تحميل المنتج',
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<ProductsBloc>().add(
-                        LoadProductByIdEvent(productId: widget.productId),
+                      context.read<ProductsCubit>().loadProductById(
+                        widget.productId,
                       );
                     },
                     child: const Text('إعادة المحاولة'),
@@ -88,34 +86,34 @@ class _ProductDetailsPageState extends State<ProductDetails> {
           children: [
             // صور المنتج
             _buildProductImages(product),
-            
+
             const SizedBox(height: 16),
-            
+
             // اسم المنتج ومعلومات البيع والتقييم
             _buildProductHeader(product),
-            
+
             const SizedBox(height: 16),
-            
+
             // السعر
             _buildPriceSection(product),
-            
+
             const SizedBox(height: 16),
-            
+
             // الوصف
             _buildDescription(product),
-            
+
             const SizedBox(height: 20),
-            
+
             // المقاسات
             _buildSizeSection(),
-            
+
             const SizedBox(height: 20),
-            
+
             // الألوان
             _buildColorSection(),
-            
+
             const SizedBox(height: 30),
-            
+
             // السعر الإجمالي وإضافة للسلة
             _buildBottomSection(product),
           ],
@@ -169,10 +167,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
       children: [
         Text(
           product.name,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Row(
@@ -186,10 +181,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
             const SizedBox(width: 16),
             const Icon(Icons.star, size: 16, color: Colors.amber),
             const SizedBox(width: 4),
-            const Text(
-              '4.8 (7,500)',
-              style: TextStyle(color: Colors.grey),
-            ),
+            const Text('4.8 (7,500)', style: TextStyle(color: Colors.grey)),
           ],
         ),
       ],
@@ -208,10 +200,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
         children: [
           Text(
             'السعر',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade700,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
           ),
           Text(
             'EGP ${product.price.toStringAsFixed(2)}',
@@ -228,7 +217,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
 
   Widget _buildDescription(Product product) {
     bool isExpanded = false;
-    
+
     return StatefulBuilder(
       builder: (context, setState) {
         return Column(
@@ -236,10 +225,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
           children: [
             const Text(
               'الوصف',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -275,16 +261,13 @@ class _ProductDetailsPageState extends State<ProductDetails> {
 
   Widget _buildSizeSection() {
     final sizes = ['38', '39', '40', '41', '42'];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'المقاس',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -334,16 +317,13 @@ class _ProductDetailsPageState extends State<ProductDetails> {
       {'name': 'أزرق', 'color': Colors.blue},
       {'name': 'أحمر', 'color': Colors.red},
     ];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'اللون',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -386,7 +366,9 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                     Text(
                       colorData['name'] as String,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: isSelected ? Colors.blue : Colors.black,
                       ),
                     ),
@@ -421,10 +403,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
             children: [
               const Text(
                 'السعر الإجمالي',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               Text(
                 'EGP ${(product.price * quantity).toStringAsFixed(2)}',
@@ -444,12 +423,9 @@ class _ProductDetailsPageState extends State<ProductDetails> {
               onPressed: () {
                 // إضافة للسلة
                 context.read<CartBloc>().add(
-                  AddToCartEvent(
-                    product: product,
-                    quantity: quantity,
-                  ),
+                  AddToCartEvent(product: product, quantity: quantity),
                 );
-                
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('تم إضافة ${product.name} إلى السلة'),

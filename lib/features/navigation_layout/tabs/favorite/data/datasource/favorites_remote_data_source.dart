@@ -1,5 +1,5 @@
 // lib/features/favorites/data/datasources/favorites_remote_data_source.dart
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class FavoritesRemoteDataSource {

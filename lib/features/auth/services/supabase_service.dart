@@ -1,5 +1,4 @@
-
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:e_commerce/features/auth/models/user_model.dart';
 import 'package:e_commerce/features/auth/models/category_model.dart';
@@ -54,7 +53,6 @@ class SupabaseService {
 
       print('Login Response Status: ${response.user}');
       print('Login Response Data: ${response.session}');
-
 
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
@@ -158,7 +156,10 @@ class SupabaseService {
 
   static Future<List<Category>> getCategories() async {
     try {
-      final response = await client.functions.invoke('get_categories');
+      final response = await client.functions.invoke(
+        'get_categories',
+        method: HttpMethod.get,
+      );
       print('Categories Response Status: ${response.status}');
       print('Categories Response Data: ${response.data}');
       if (response.status != 200) {
@@ -280,14 +281,13 @@ class SupabaseService {
   static Future<List<Product>> getAllProductsDirect() async {
     try {
       print('📡 Direct: Getting all products');
-      final response =
-          await client
-              .from('product')
-              .select('''
+      final response = await client
+          .from('product')
+          .select('''
           *,
           category(*)
         ''')
-              .order('created_at', ascending: false);
+          .order('created_at', ascending: false);
 
       // إصلاح التحويل
       return response.map((item) => Product.fromJson(item)).toList();
@@ -555,87 +555,85 @@ class SupabaseService {
   }
   // أضف هذه الدوال في نهاية ملف SupabaseService
 
-// 1. إضافة/إزالة منتج من المفضلة
-static Future<void> toggleFavorite(int productId) async {
-  try {
-    final authUser = client.auth.currentUser;
-    if (authUser == null) {
-      throw Exception('يجب تسجيل الدخول أولاً');
-    }
+  // 1. إضافة/إزالة منتج من المفضلة
+  static Future<void> toggleFavorite(int productId) async {
+    try {
+      final authUser = client.auth.currentUser;
+      if (authUser == null) {
+        throw Exception('يجب تسجيل الدخول أولاً');
+      }
 
-    // التحقق إذا المنتج موجود بالفعل في المفضلة
-    final existing = await client
-        .from('favorites')
-        .select()
-        .eq('customer_auth_id', authUser.id)
-        .eq('product_id', productId);
-
-    if (existing.isEmpty) {
-      // إضافة إلى المفضلة
-      await client.from('favorites').insert({
-        'customer_auth_id': authUser.id,
-        'product_id': productId,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      print('✅ تم إضافة المنتج $productId إلى المفضلة');
-    } else {
-      // إزالة من المفضلة
-      await client
+      // التحقق إذا المنتج موجود بالفعل في المفضلة
+      final existing = await client
           .from('favorites')
-          .delete()
+          .select()
           .eq('customer_auth_id', authUser.id)
           .eq('product_id', productId);
-      print('❌ تم إزالة المنتج $productId من المفضلة');
+
+      if (existing.isEmpty) {
+        // إضافة إلى المفضلة
+        await client.from('favorites').insert({
+          'customer_auth_id': authUser.id,
+          'product_id': productId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        print('✅ تم إضافة المنتج $productId إلى المفضلة');
+      } else {
+        // إزالة من المفضلة
+        await client
+            .from('favorites')
+            .delete()
+            .eq('customer_auth_id', authUser.id)
+            .eq('product_id', productId);
+        print('❌ تم إزالة المنتج $productId من المفضلة');
+      }
+    } catch (e) {
+      print('❌ خطأ في toggleFavorite: $e');
+      throw Exception('فشل تحديث المفضلة: $e');
     }
-  } catch (e) {
-    print('❌ خطأ في toggleFavorite: $e');
-    throw Exception('فشل تحديث المفضلة: $e');
   }
-}
 
-// 2. جلب جميع المنتجات المفضلة للمستخدم
-static Future<List<Product>> getFavoriteProducts() async {
-  try {
-    final authUser = client.auth.currentUser;
-    if (authUser == null) {
-      throw Exception('يجب تسجيل الدخول أولاً');
-    }
+  // 2. جلب جميع المنتجات المفضلة للمستخدم
+  static Future<List<Product>> getFavoriteProducts() async {
+    try {
+      final authUser = client.auth.currentUser;
+      if (authUser == null) {
+        throw Exception('يجب تسجيل الدخول أولاً');
+      }
 
-    final response = await client
-        .from('favorites')
-        .select('''
+      final response = await client
+          .from('favorites')
+          .select('''
           product:product_id (*, category(*))
         ''')
-        .eq('customer_auth_id', authUser.id)
-        .order('created_at', ascending: false);
+          .eq('customer_auth_id', authUser.id)
+          .order('created_at', ascending: false);
 
-    // استخراج المنتجات من الاستجابة
-    final favorites = response as List;
-    return favorites
-        .map((fav) => Product.fromJson(fav['product']))
-        .toList();
-  } catch (e) {
-    print('❌ خطأ في getFavoriteProducts: $e');
-    throw Exception('فشل جلب المنتجات المفضلة: $e');
+      // استخراج المنتجات من الاستجابة
+      final favorites = response as List;
+      return favorites.map((fav) => Product.fromJson(fav['product'])).toList();
+    } catch (e) {
+      print('❌ خطأ في getFavoriteProducts: $e');
+      throw Exception('فشل جلب المنتجات المفضلة: $e');
+    }
   }
-}
 
-// 3. التحقق إذا منتج معين في المفضلة
-static Future<bool> isProductFavorite(int productId) async {
-  try {
-    final authUser = client.auth.currentUser;
-    if (authUser == null) return false;
+  // 3. التحقق إذا منتج معين في المفضلة
+  static Future<bool> isProductFavorite(int productId) async {
+    try {
+      final authUser = client.auth.currentUser;
+      if (authUser == null) return false;
 
-    final response = await client
-        .from('favorites')
-        .select()
-        .eq('customer_auth_id', authUser.id)
-        .eq('product_id', productId);
+      final response = await client
+          .from('favorites')
+          .select()
+          .eq('customer_auth_id', authUser.id)
+          .eq('product_id', productId);
 
-    return response.isNotEmpty;
-  } catch (e) {
-    print('❌ خطأ في isProductFavorite: $e');
-    return false;
+      return response.isNotEmpty;
+    } catch (e) {
+      print('❌ خطأ في isProductFavorite: $e');
+      return false;
+    }
   }
-}
 }

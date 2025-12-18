@@ -1,9 +1,11 @@
-import 'package:e_commerce/features/auth/models/product_model.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
 import 'package:e_commerce/features/products/data/datasource/products_remote_data_source.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:e_commerce/features/search/view/custom_search_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SearchCubit extends Cubit<SearchState> {
@@ -160,11 +162,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         }
 
         if (state is SearchLoading) {
-          return const Center(
+          return  Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
+                Lottie.asset(AppLottie.loading),
                 SizedBox(height: 16),
                 Text('جاري البحث...'),
               ],

@@ -47,4 +47,5 @@ abstract class AppSvgs {
       '${_basePath}active_favorite_icon.svg';
   static const String inactiveFavoriteIcon =
       '${_basePath}inactive_favorite_icon.svg';
+      
 }

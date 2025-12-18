@@ -1,9 +1,11 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/regester/register.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class Login extends StatefulWidget {
   static const String routeName = "login";
@@ -218,8 +220,8 @@ class _LoginState extends State<Login> {
                   width: double.infinity,
                   height: 55,
                   child: _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                      ?  Center(
+                          child: Lottie.asset(AppLottie.loading),
                         )
                       : ElevatedButton(
                           onPressed: _login,
