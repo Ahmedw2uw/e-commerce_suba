@@ -42,8 +42,8 @@ class ProductCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                width: 150,
-                height: 150,
+                width: 120,
+                height: 120,
                 color: Colors.grey.shade200,
                 child: product.images.isNotEmpty
                     ? Image.network(
@@ -71,7 +71,7 @@ class ProductCard extends StatelessWidget {
                     product.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                     ),
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
@@ -100,20 +100,20 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                   ],
                   Text(
-                    'EGP ${product.price.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blue,
-                    ),
-                  ),
+                'EGP ${product.price.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontSize: 15, // Slightly smaller
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.blue,
+                ),
+              ),
                 ],
               ),
             ),
       
             // Buttons - Modified
             SizedBox(
-              width: 70, // Fixed width instead of Flexible
+              width: 65, // Reduced width
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

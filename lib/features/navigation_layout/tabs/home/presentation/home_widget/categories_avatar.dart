@@ -90,7 +90,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
               height: 70,
               width: 70,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12), // Reduced curve
+                borderRadius: BorderRadius.circular(12),
                 color: Colors.grey[100],
                 image: DecorationImage(
                   image: image.startsWith('http')
@@ -120,7 +120,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
   Widget _buildStaticCategories() {
     return SizedBox(
-      height: 220, // Height enough for two rows
+      height: 260, // Height enough for two rows
       child: GridView.count(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
@@ -141,7 +141,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
   Widget _buildLoadingState() {
     return SizedBox(
-      height: 220,
+      height: 260,
       child: GridView.builder(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
@@ -186,7 +186,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     }
 
     return SizedBox(
-      height: 220,
+      height: 260,
       child: GridView.builder(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
@@ -220,7 +220,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
     if (_error != null) {
       return SizedBox(
-        height: 250,
+        width: double.infinity,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -229,7 +229,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '⚠️ Failed to load categories',
+                'Failed to load categories',
                 style: const TextStyle(color: Colors.red, fontSize: 12),
                 textAlign: TextAlign.center,
               ),

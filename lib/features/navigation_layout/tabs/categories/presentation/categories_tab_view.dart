@@ -68,79 +68,97 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
 
   Widget _buildCategoriesView(CategoryLoaded state) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Sidebar categories list
         Container(
-          width: 120,
-          color: AppColors.litghGray,
-          child: ListView.builder(
-            itemCount: state.categories.length,
-            itemBuilder: (context, index) {
-              final category = state.categories[index];
-              final isSelected = state.selectedIndex == index;
+          width: 130,
+          margin: const EdgeInsets.only(left: 8, top: 16, bottom: 16),
+          decoration: BoxDecoration(
+            color: AppColors.litghGray.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: ListView.builder(
+              itemCount: state.categories.length,
+              itemBuilder: (context, index) {
+                final category = state.categories[index];
+                final isSelected = state.selectedIndex == index;
 
-              return GestureDetector(
-                onTap: () =>
-                    context.read<CategoryCubit>().changeCategory(index),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
-                    border: isSelected
-                        ? const Border(
-                            left: BorderSide(color: Colors.blue, width: 3),
-                          )
-                        : null,
-                  ),
-                  child: Text(
-                    category.name,
-                    style: TextStyle(
-                      color: isSelected ? Colors.blue : Colors.black87,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                return GestureDetector(
+                  onTap: () =>
+                      context.read<CategoryCubit>().changeCategory(index),
+                  child: Container(
+                    height: 80,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : Colors.transparent,
+                    ),
+                    child: Row(
+                      children: [
+                        if (isSelected)
+                          Container(
+                            width: 6,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: AppColors.blue,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            category.name,
+                            style: TextStyle(
+                              color: isSelected ? AppColors.darkBlue : AppColors.darkBlue,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
 
         // Selected category content
         Expanded(
-          child: SingleChildScrollView(
-            child: Align(
-              alignment: Alignment.topLeft, // Ensures content is at top
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      state.categories[state.selectedIndex].name,
-                      style: TextStyle(
-                        color: AppColors.darkBlue,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    state.categories[state.selectedIndex].name,
+                    style: const TextStyle(
+                      color: AppColors.darkBlue,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Banner
                   CategoryBanner(
                     title: state.categories[state.selectedIndex].name,
                     imageUrl: _getBannerImage(state.categories[state.selectedIndex]),
+                    onTap: () {},
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Products
+                  // Products / Subcategories Grid
                   if (state.products.isNotEmpty)
                     GridView.builder(
                       shrinkWrap: true,
@@ -148,14 +166,14 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                       itemCount: state.products.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 0.8,
-                          ),
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.7,
+                      ),
                       itemBuilder: (context, index) {
                         final product = state.products[index];
-                        return _buildProductItem(product);
+                        return _buildSubCategoryItem(product);
                       },
                     )
                   else
@@ -169,7 +187,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
     );
   }
 
-  Widget _buildProductItem(Product product) {
+  Widget _buildSubCategoryItem(Product product) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -185,39 +203,43 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: product.images.isNotEmpty
-                  ? Image.network(
-                      product.images.first,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
+                  ? (product.images.first.startsWith('http')
+                      ? Image.network(
+                          product.images.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildErrorPlaceholder(),
+                        )
+                      : Image.asset(
+                          product.images.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildErrorPlaceholder(),
+                        ))
+                  : _buildErrorPlaceholder(),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             product.name,
-            style: const TextStyle(fontSize: 14),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            '\$${product.price.toStringAsFixed(2)}',
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
+              color: AppColors.darkBlue,
+              fontWeight: FontWeight.w500,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return Container(
+      color: Colors.grey[200],
+      child: const Icon(Icons.image_not_supported, color: Colors.grey),
     );
   }
 

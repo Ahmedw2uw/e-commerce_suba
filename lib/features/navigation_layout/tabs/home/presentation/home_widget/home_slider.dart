@@ -97,7 +97,11 @@ class BannerLeftText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Image.asset(imagePath),
+        Image.asset(
+          imagePath,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
         Positioned(
           left: 40,
           top: 15,
@@ -176,7 +180,11 @@ class BannerRightText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Image.asset(imagePath),
+        Image.asset(
+          imagePath,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
         Positioned(
           right: 40,
           top: 15,

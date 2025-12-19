@@ -1,3 +1,4 @@
+import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -29,18 +30,19 @@ class CustomSearchField extends StatelessWidget {
       decoration: InputDecoration(
         prefixIcon:
             SvgPicture.asset(AppSvgs.searchIcon, fit: BoxFit.scaleDown),
-        hintText: "search",
+        hintText: "what do you search for?",
+        hintStyle: const TextStyle(color: AppColors.grey, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(1000),
-          borderSide: BorderSide(color: colorScheme.primary),
+          borderSide: const BorderSide(color: AppColors.blue),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(1000),
-          borderSide: BorderSide(color: colorScheme.primary),
+          borderSide: const BorderSide(color: AppColors.blue),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(1000),
-          borderSide: BorderSide(color: colorScheme.primary),
+          borderSide: const BorderSide(color: AppColors.blue),
         ),
       ),
     );

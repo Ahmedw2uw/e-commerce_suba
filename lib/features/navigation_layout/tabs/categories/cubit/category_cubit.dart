@@ -1,3 +1,5 @@
+// lib/features/navigation_layout/tabs/categories/cubit/category_cubit.dart
+
 import 'package:e_commerce/core/models/category_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/repositories/category_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
