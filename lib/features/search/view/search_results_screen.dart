@@ -13,7 +13,7 @@ class SearchCubit extends Cubit<SearchState> {
   Timer? _debounce;
 
   SearchCubit({required this.productsRemoteDataSource})
-      : super(SearchInitial());
+    : super(SearchInitial());
 
   Future<void> search(String query) async {
     if (query.trim().isEmpty) {
@@ -80,10 +80,7 @@ class SearchError extends SearchState {
 class SearchResultsScreen extends StatefulWidget {
   final String initialQuery;
 
-  const SearchResultsScreen({
-    super.key,
-    required this.initialQuery,
-  });
+  const SearchResultsScreen({super.key, required this.initialQuery});
 
   @override
   State<SearchResultsScreen> createState() => _SearchResultsScreenState();
@@ -99,7 +96,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     super.initState();
     _searchController = TextEditingController(text: widget.initialQuery);
     _searchFocusNode = FocusNode();
-    
+
     _searchCubit = SearchCubit(
       productsRemoteDataSource: ProductsRemoteDataSourceImpl(),
     );
@@ -151,7 +148,6 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   Widget _buildBody() {
     return BlocBuilder<SearchCubit, SearchState>(
       builder: (context, state) {
-
         if (state is SearchInitial) {
           return const Center(
             child: Column(
@@ -259,16 +255,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               ),
               const Spacer(),
               if (state.products.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.sort),
-                  onPressed: () {
-                    // TODO: Add sorting logic
-                  },
-                ),
+                IconButton(icon: const Icon(Icons.sort), onPressed: () {}),
             ],
           ),
         ),
-        
+
         // Product List
         Expanded(
           child: state.products.isEmpty
@@ -278,28 +269,25 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     children: [
                       Icon(Icons.search_off, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
-                    
                     ],
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   itemCount: state.products.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final product = state.products[index];
                     return ProductCard(
                       product: product,
-                      isFavorite: false, // TODO: Fetch favorite status
-                      onFavorite: () async {
-                        // TODO: Call SupabaseService.toggleFavorite
-                      },
-                      onAdd: () {
-                        // TODO: Add to cart
-                      },
-                      onTap: () {
-                        // TODO: Navigation to product page
-                      },
+                      isFavorite: false,
+                      onFavorite: () async {},
+                      onAdd: () {},
+                      onTap: () {},
                     );
                   },
                 ),

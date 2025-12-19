@@ -40,7 +40,7 @@ class CartItemWidget extends StatelessWidget {
                   : const Icon(Icons.image, color: Colors.grey),
             ),
             const SizedBox(width: 12),
-
+    
             // Product details
             Expanded(
               child: Column(
@@ -67,7 +67,7 @@ class CartItemWidget extends StatelessWidget {
                 ],
               ),
             ),
-
+    
             // Quantity and remove controls
             Column(
               children: [

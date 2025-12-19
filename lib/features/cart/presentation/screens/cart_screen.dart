@@ -108,6 +108,7 @@ class CartScreen extends StatelessWidget {
                           ),
                         );
                       },
+                       
                     );
                   },
                 ),
@@ -165,7 +166,6 @@ class CartScreen extends StatelessWidget {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: navigate to the checkout screen
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,

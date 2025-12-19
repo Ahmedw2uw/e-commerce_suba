@@ -15,9 +15,9 @@ class FavoriteTabView extends StatefulWidget {
 }
 
 class _FavoriteTabViewState extends State<FavoriteTabView> {
-  
   List<Product> favoriteProducts = [];
   bool isLoading = true;
+  bool hasError = false;
 
   @override
   void initState() {
@@ -26,43 +26,42 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
   }
 
   Future<void> _loadFavoriteProducts() async {
-    setState(() => isLoading = true);
+    if (!mounted) return;
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
+
     try {
       final favoriteProductsList = await SupabaseService.getFavoriteProducts();
+      if (!mounted) return;
 
       setState(() {
         favoriteProducts = favoriteProductsList;
         isLoading = false;
+        hasError = false;
       });
     } catch (e) {
-      setState(() => isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading favorite products: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        hasError = true;
+      });
     }
   }
 
   Future<void> _toggleFavorite(int productId) async {
     try {
-      // The new toggleFavorite function handles adding/removing in the database
       await SupabaseService.toggleFavorite(productId: productId);
-      
-      // Reload the list to reflect the change
       await _loadFavoriteProducts();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error toggling favorite: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error toggling favorite: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -76,7 +75,31 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
         elevation: 0,
       ),
       body: isLoading
-          ?  Center(child:Lottie.asset(AppLottie.loading),)
+          ? Center(child: Lottie.asset(AppLottie.loading))
+          : hasError
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(AppLottie.offline, width: 180),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No Internet Connection',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please check your connection and try again',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _loadFavoriteProducts, // Retry button
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
           : favoriteProducts.isEmpty
           ? Center(
               child: Column(
@@ -100,16 +123,17 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
                 return ProductCard(
                   product: product,
                   isFavorite: true,
-                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  }, onTap: () { // Add onTap here
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductDetails(
-                                      productId: product.id,
-                                    ),
-                                  ),
-                                );
-                              },
+                  onFavorite: () => _toggleFavorite(product.id),
+                  onAdd: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProductDetails(productId: product.id),
+                      ),
+                    );
+                  },
                 );
               },
             ),

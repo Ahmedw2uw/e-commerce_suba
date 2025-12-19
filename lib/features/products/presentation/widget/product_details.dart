@@ -48,7 +48,9 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                   color: isFavorite ? Colors.red : Colors.grey,
                 ),
                 onPressed: () {
-                  context.read<FavoritesCubit>().toggleFavorite(widget.productId);
+                  context.read<FavoritesCubit>().toggleFavorite(
+                    widget.productId,
+                  );
                 },
               );
             },
@@ -58,7 +60,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
       body: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
           if (state.status == ProductsStatus.loading) {
-            return  Center(child: Lottie.asset(AppLottie.loading),);
+            return Center(child: Lottie.asset(AppLottie.loading));
           }
 
           if (state.status == ProductsStatus.failure ||
@@ -67,14 +69,18 @@ class _ProductDetailsPageState extends State<ProductDetails> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  Lottie.asset(AppLottie.offline, width: 180),
                   const SizedBox(height: 16),
-                  Text(
-                    state.errorMessage.isNotEmpty
-                        ? state.errorMessage
-                        : 'Failed to load product',
+                  const Text(
+                    'No Internet Connection',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please check your connection and try again',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       context.read<ProductsCubit>().loadProductById(
@@ -185,9 +191,12 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                   Positioned(
                     bottom: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Row(
@@ -202,7 +211,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                             decoration: BoxDecoration(
                               color: _currentImageIndex == index
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.5),
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -329,10 +338,10 @@ class _ProductDetailsPageState extends State<ProductDetails> {
     if (selectedSize == null && sizes.isNotEmpty) {
       // Set default selection if not set
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(mounted) {
-           setState(() {
-             selectedSize = sizes.first;
-           });
+        if (mounted) {
+          setState(() {
+            selectedSize = sizes.first;
+          });
         }
       });
     }
@@ -391,13 +400,13 @@ class _ProductDetailsPageState extends State<ProductDetails> {
     }
 
     final colors = product.color!.split(',').map((e) => e.trim()).toList();
-     if (selectedColor == null && colors.isNotEmpty) {
+    if (selectedColor == null && colors.isNotEmpty) {
       // Set default selection if not set
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if(mounted) {
-           setState(() {
-             selectedColor = colors.first;
-           });
+        if (mounted) {
+          setState(() {
+            selectedColor = colors.first;
+          });
         }
       });
     }
@@ -416,7 +425,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
           children: colors.map((colorName) {
             bool isSelected = selectedColor == colorName;
             final colorValue = _getColorFromString(colorName);
-            
+
             return GestureDetector(
               onTap: () {
                 setState(() {
@@ -486,7 +495,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
         return Colors.orange;
       case 'purple':
         return Colors.purple;
-      case 'brown': 
+      case 'brown':
         return Colors.brown;
       case 'pink':
         return Colors.pink;

@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
           BlocProvider<CartBloc>(
             create: (context) =>
                 CartBloc(cartRepository: context.read<CartRepository>())
-                  ..add(LoadCartEvent()), 
+                  ..add(LoadCartEvent()),
           ),
           BlocProvider<ProductsCubit>(
             create: (context) => ProductsCubit(
@@ -73,9 +73,9 @@ class MyApp extends StatelessWidget {
             create: (context) => CategoryCubit(CategoryRepository()),
           ),
           BlocProvider(
-            create: (context) => FavoritesCubit(
-              context.read<FavoritesRepository>(),
-            )..loadFavorites(),
+            create: (context) =>
+                FavoritesCubit(context.read<FavoritesRepository>())
+                  ..loadFavorites(),
           ),
         ],
         child: MaterialApp(

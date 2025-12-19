@@ -5,7 +5,7 @@ import 'package:e_commerce/features/navigation_layout/tabs/profile/profile_tab_v
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_appbar.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_bottom_navigation_bar_item.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_screen.dart';
-import 'package:e_commerce/features/search/view/search_results_screen.dart'; // Add this
+import 'package:e_commerce/features/search/view/search_results_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 

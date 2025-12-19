@@ -1,7 +1,9 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
 import 'package:flutter/material.dart' hide TextField;
+import 'package:lottie/lottie.dart';
 
 class ChangeEmailDialog extends StatefulWidget {
   final String currentEmail;
@@ -181,7 +183,7 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.blue.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.blue),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,13 +224,10 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
           child: _isLoading
-              ? const SizedBox(
+              ?  SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
+                  child:Lottie.asset(AppLottie.loading),
                 )
               : const Text(
                   'Change Email',

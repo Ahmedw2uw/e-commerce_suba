@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -34,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       final productsCubit = context.read<ProductsCubit>();
       productsCubit.loadFeaturedProducts();
       productsCubit.loadProducts();
-      
+
       context.read<FavoritesCubit>().loadFavorites();
-      
+
       _loadHomeAppliances();
     });
   }
@@ -76,7 +75,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     MaterialPageRoute(
                       builder: (context) => BlocProvider(
                         create: (context) => ProductsCubit(
-                          productsRepository: context.read<ProductsRepository>(),
+                          productsRepository: context
+                              .read<ProductsRepository>(),
                         ),
                         child: CategoryProductsScreen(
                           categoryId: id,
@@ -99,9 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               if (_isLoadingHomeAppliances)
                 SizedBox(
                   height: 170,
-                  child: Center(
-                    child: Lottie.asset(AppLottie.loading),
-                  ),
+                  child: Center(child: Lottie.asset(AppLottie.loading)),
                 )
               else if (_homeAppliances.isEmpty)
                 SizedBox(
@@ -180,11 +178,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: BlocBuilder<FavoritesCubit, FavoritesState>(
                           builder: (context, favoritesState) {
-                            final isFav = favoritesState.ids.contains(product.id);
+                            final isFav = favoritesState.ids.contains(
+                              product.id,
+                            );
                             return ProductCard(
                               product: product,
                               onFavorite: () {
-                                context.read<FavoritesCubit>().toggleFavorite(product.id);
+                                context.read<FavoritesCubit>().toggleFavorite(
+                                  product.id,
+                                );
                               },
                               isFavorite: isFav,
                               onAdd: () {
@@ -263,7 +265,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ProductDetails(productId: item['id'] as int),
+              builder: (context) =>
+                  ProductDetails(productId: item['id'] as int),
             ),
           );
         }
@@ -296,18 +299,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
                               return Center(
-                                child: CircularProgressIndicator(
-                                  value: progress.expectedTotalBytes != null
-                                      ? progress.cumulativeBytesLoaded /
-                                            progress.expectedTotalBytes!
-                                      : null,
-                                ),
+                                child: Lottie.asset(AppLottie.loading),
                               );
                             },
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.home_outlined, size: 50),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.home_outlined,
+                                    size: 50,
+                                  ),
+                                ),
                           )
                   : Container(
                       color: Colors.grey[200],

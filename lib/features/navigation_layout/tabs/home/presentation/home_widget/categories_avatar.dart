@@ -1,7 +1,9 @@
 import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/core/models/category_model.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class CategoriesAvatars extends StatefulWidget {
   final int? selectedCategoryId;
@@ -29,6 +31,8 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
   }
 
   Future<void> _loadCategories() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -36,11 +40,16 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
     try {
       final categories = await SupabaseService.getCategories();
+
+      if (!mounted) return;
+
       setState(() {
         _categories = categories;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -68,7 +77,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     } else if (lowerName.contains('headphone') || lowerName.contains('audio')) {
       return AppImages.headphones;
     }
-    return AppImages.laptop; // Default general image
+    return AppImages.laptop;
   }
 
   Widget _buildCategory(
@@ -103,11 +112,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
             const SizedBox(height: 6),
             Text(
               name,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -118,32 +123,13 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     );
   }
 
-  Widget _buildStaticCategories() {
-    return SizedBox(
-      height: 260, // Height enough for two rows
-      child: GridView.count(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        scrollDirection: Axis.horizontal,
-        crossAxisCount: 2, // two rows
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 1.1, 
-        children: [
-          _buildCategory("Women's Fashion", AppImages.women),
-          _buildCategory("Men's Fashion", AppImages.men),
-          _buildCategory("Laptops", AppImages.laptop),
-          _buildCategory("Beauty", AppImages.beauty),
-          _buildCategory("Headphones", AppImages.headphones),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLoadingState() {
     return SizedBox(
       height: 260,
       child: GridView.builder(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -152,9 +138,8 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
           childAspectRatio: 1.1,
         ),
         itemCount: 6,
-        itemBuilder: (context, index) {
+        itemBuilder: (_, __) {
           return Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 70,
@@ -181,14 +166,12 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
   }
 
   Widget _buildDynamicCategories() {
-    if (_categories.isEmpty) {
-      return _buildStaticCategories();
-    }
-
     return SizedBox(
       height: 260,
       child: GridView.builder(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -197,17 +180,16 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
           childAspectRatio: 1.1,
         ),
         itemCount: _categories.length,
-        itemBuilder: (context, index) {
+        itemBuilder: (_, index) {
           final category = _categories[index];
-          final imageUrl = _getImageUrl(category.image);
-          final image = imageUrl ?? _getDefaultImage(category.name);
-          final isSelected = category.id == widget.selectedCategoryId;
+          final image =
+              _getImageUrl(category.image) ?? _getDefaultImage(category.name);
 
           return _buildCategory(
             category.name,
             image,
             categoryId: category.id,
-            isSelected: isSelected,
+            isSelected: category.id == widget.selectedCategoryId,
           );
         },
       ),
@@ -219,32 +201,24 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     if (_isLoading) return _buildLoadingState();
 
     if (_error != null) {
-      return SizedBox(
+      return Container(
         width: double.infinity,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildStaticCategories(),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Failed to load categories',
-                style: const TextStyle(color: Colors.red, fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
+            Lottie.asset(AppLottie.offline, width: 180),
+            const Text(
+              'No Internet Connection',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
+            const Text(
+              'Please check your connection and try again',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 15),
             ElevatedButton(
               onPressed: _loadCategories,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-              ),
               child: const Text('Retry'),
             ),
           ],

@@ -19,7 +19,6 @@ class CustomSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
       focusNode: focusNode,

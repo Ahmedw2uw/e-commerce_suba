@@ -1,3 +1,4 @@
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/core/models/address_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart' hide TextField;
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/core/models/user_model.dart' hide Address;
+import 'package:lottie/lottie.dart';
 
 class ProfileTabView extends StatefulWidget {
   const ProfileTabView({super.key});
@@ -49,7 +51,7 @@ class _ProfileTabViewState extends State<ProfileTabView> {
           _currentUser = user;
           _nameController.text = user.name;
           _emailController.text = user.email;
-          _phoneController.text = user.phone ?? '';
+          _phoneController.text = user.phone;
         });
         await _loadUserAddresses();
       }
@@ -58,7 +60,7 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       _showErrorSnackBar('Failed to load user data: $e');
     } finally {
       setState(() {
-        _isLoading = false;
+        //_isLoading = false;
       });
     }
   }
@@ -221,9 +223,9 @@ class _ProfileTabViewState extends State<ProfileTabView> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _currentUser == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(child: Center(child:Lottie.asset(AppLottie.loading),)),
       );
     }
     return Scaffold(
@@ -498,13 +500,10 @@ class _ProfileTabViewState extends State<ProfileTabView> {
                       backgroundColor: AppColors.blue,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ?  SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                           child:Lottie.asset(AppLottie.loading),
                           )
                         : const Text('Save Address'),
                   ),
@@ -543,7 +542,7 @@ class _ProfileTabViewState extends State<ProfileTabView> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withOpacity(0.1),
+                  color: AppColors.blue,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -595,13 +594,10 @@ class _ProfileTabViewState extends State<ProfileTabView> {
               ),
             ),
             child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
+                    child:Lottie.asset(AppLottie.loading),
                   )
                 : const Text(
                     'Save Changes',

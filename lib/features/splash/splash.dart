@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:e_commerce/core/theme/app_colors.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
@@ -34,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: AppColors.blue,
       body: Center(
         child: SizedBox(
-          child: Lottie.asset("assets/lottie/add to cart (1).json"),
+          child: Lottie.asset(AppLottie.splashScreen),
         ),
       ),
     );

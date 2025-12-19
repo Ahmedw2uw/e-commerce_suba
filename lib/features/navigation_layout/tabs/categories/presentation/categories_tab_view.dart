@@ -8,6 +8,9 @@ import 'package:e_commerce/features/navigation_layout/tabs/categories/presentati
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
 import 'package:e_commerce/core/models/category_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_products_screen.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
+import 'package:e_commerce/features/products/domain/repositories/products_repository.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +43,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
 
   Widget _buildContent(CategoryState state) {
     if (state is CategoryLoading) {
-      return Center(child: SizedBox(child: Lottie.asset(AppLottie.loading)));
+      return Center(child: SizedBox(child: const CircularProgressIndicator()));
     }
 
     if (state is CategoryError) {
@@ -48,7 +51,17 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Error: ${state.message}'),
+            Lottie.asset(AppLottie.offline, width: 180),
+            const SizedBox(height: 16),
+            const Text(
+              'No Internet Connection',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please check your connection and try again',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => context.read<CategoryCubit>().loadCategories(),
@@ -75,9 +88,9 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
           width: 130,
           margin: const EdgeInsets.only(left: 8, top: 16, bottom: 16),
           decoration: BoxDecoration(
-            color: AppColors.litghGray.withOpacity(0.3),
+            color: AppColors.litghGray,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.blue.withOpacity(0.3), width: 1),
+            border: Border.all(color: AppColors.blue, width: 1),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -92,9 +105,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                       context.read<CategoryCubit>().changeCategory(index),
                   child: Container(
                     height: 80,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.white : Colors.transparent,
                     ),
@@ -114,7 +125,9 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                           child: Text(
                             category.name,
                             style: TextStyle(
-                              color: isSelected ? AppColors.darkBlue : AppColors.darkBlue,
+                              color: isSelected
+                                  ? AppColors.darkBlue
+                                  : AppColors.darkBlue,
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
@@ -152,8 +165,28 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                   // Banner
                   CategoryBanner(
                     title: state.categories[state.selectedIndex].name,
-                    imageUrl: _getBannerImage(state.categories[state.selectedIndex]),
-                    onTap: () {},
+                    imageUrl: _getBannerImage(
+                      state.categories[state.selectedIndex],
+                    ),
+                    onTap: () {
+                      final category = state.categories[state.selectedIndex];
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => ProductsCubit(
+                              productsRepository: context
+                                  .read<ProductsRepository>(),
+                            ),
+                            child: CategoryProductsScreen(
+                              categoryId: category.id,
+                              categoryName: category.name,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 20),
@@ -166,11 +199,11 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                       itemCount: state.products.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.7,
-                      ),
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.7,
+                          ),
                       itemBuilder: (context, index) {
                         final product = state.products[index];
                         return _buildSubCategoryItem(product);
@@ -204,18 +237,18 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
               borderRadius: BorderRadius.circular(10),
               child: product.images.isNotEmpty
                   ? (product.images.first.startsWith('http')
-                      ? Image.network(
-                          product.images.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildErrorPlaceholder(),
-                        )
-                      : Image.asset(
-                          product.images.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildErrorPlaceholder(),
-                        ))
+                        ? Image.network(
+                            product.images.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildErrorPlaceholder(),
+                          )
+                        : Image.asset(
+                            product.images.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildErrorPlaceholder(),
+                          ))
                   : _buildErrorPlaceholder(),
             ),
           ),

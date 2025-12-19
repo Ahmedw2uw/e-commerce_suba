@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:e_commerce/core/theme/app_colors.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
 import 'package:flutter/material.dart' hide TextField;
+import 'package:lottie/lottie.dart';
 
 class ChangePasswordDialog extends StatefulWidget {
   const ChangePasswordDialog({super.key});
@@ -131,13 +135,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
             backgroundColor: AppColors.blue,
           ),
           child: _isLoading
-              ? const SizedBox(
+              ?  SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
+                  child:Lottie.asset(AppLottie.loading),
                 )
               : const Text('Change Password'),
         ),
