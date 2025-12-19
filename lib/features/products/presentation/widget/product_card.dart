@@ -5,19 +5,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:e_commerce/core/models/product_model.dart';
 
-
 class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onFavorite;
   final bool isFavorite;
   final VoidCallback? onTap;
-  
 
   const ProductCard({
     super.key,
     required this.product,
     required this.onFavorite,
-    this.isFavorite = false, required Null Function() onAdd,
+    this.isFavorite = false,
+    required Null Function() onAdd,
     required this.onTap,
   });
 
@@ -32,7 +31,11 @@ class ProductCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
           ],
         ),
         child: Row(
@@ -60,12 +63,12 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-      
+
             // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-      
+
                 children: [
                   Text(
                     product.name,
@@ -100,17 +103,17 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                   ],
                   Text(
-                'EGP ${product.price.toStringAsFixed(0)}',
-                style: const TextStyle(
-                  fontSize: 15, // Slightly smaller
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.blue,
-                ),
-              ),
+                    'EGP ${product.price.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 15, // Slightly smaller
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.blue,
+                    ),
+                  ),
                 ],
               ),
             ),
-      
+
             // Buttons - Modified
             SizedBox(
               width: 65, // Reduced width
@@ -125,7 +128,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     onPressed: () {
                       onFavorite();
-                      
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
@@ -134,7 +137,9 @@ class ProductCard extends StatelessWidget {
                                 : '${product.name} added to favorites',
                           ),
                           duration: const Duration(seconds: 1),
-                          backgroundColor: isFavorite ? Colors.grey : Colors.pink,
+                          backgroundColor: isFavorite
+                              ? Colors.grey
+                              : Colors.pink,
                         ),
                       );
                     },
@@ -155,10 +160,7 @@ class ProductCard extends StatelessWidget {
                         vertical: 6,
                       ),
                     ),
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    child: const Text('Add', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),
@@ -170,7 +172,6 @@ class ProductCard extends StatelessWidget {
   }
 
   void _addToCartWithDebug(BuildContext context, Product product) {
-
     try {
       if (!context.mounted) {
         return;
@@ -180,7 +181,6 @@ class ProductCard extends StatelessWidget {
 
       cartBloc.add(AddToCartEvent(product: product, quantity: 1));
 
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Added ${product.name} to cart'),
@@ -188,9 +188,7 @@ class ProductCard extends StatelessWidget {
           backgroundColor: Colors.green,
         ),
       );
-
     } catch (e) {
-
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -226,8 +224,9 @@ class ProductCard extends StatelessWidget {
       case 'brown':
         return Colors.brown;
       case 'grey':
-      case 'gray':
         return Colors.grey;
+      case 'silver':
+        return Color(0xFFC0C0C0);
       default:
         return Colors.grey;
     }
