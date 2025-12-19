@@ -201,7 +201,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     if (_isLoading) return _buildLoadingState();
 
     if (_error != null) {
-      return Container(
+      return SizedBox(
         width: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
