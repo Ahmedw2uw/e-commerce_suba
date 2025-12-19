@@ -5,14 +5,16 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
   final int tabIndex;
   final TextEditingController? searchController;
   final FocusNode? searchFocusNode;
-  final ValueChanged<String>? onSearchSubmitted; // ⬅️ أضف هذه السطر
+  final ValueChanged<String>? onSearchSubmitted;
+  final ValueChanged<String>? onSearchChanged;
 
   const HomeAppbar({
     super.key, 
     required this.tabIndex,
     this.searchController,
     this.searchFocusNode,
-    this.onSearchSubmitted, // ⬅️ أضف هذه السطر
+    this.onSearchSubmitted,
+    this.onSearchChanged,
   });
 
   @override
@@ -31,7 +33,8 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
                 child: SearchAndCartWidget(
                   searchController: searchController,
                   searchFocusNode: searchFocusNode,
-                  onSearchSubmitted: onSearchSubmitted, // ⬅️ مررها هنا
+                  onSearchSubmitted: onSearchSubmitted,
+                  onSearchChanged: onSearchChanged,
                 ),
               ),
     );

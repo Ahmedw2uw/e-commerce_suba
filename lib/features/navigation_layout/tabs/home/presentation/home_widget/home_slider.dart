@@ -31,8 +31,9 @@ class _HomeSliderState extends State<HomeSlider> {
 
   int currentIndex = 0;
 
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 200,
       child: Stack(
         children: [
@@ -44,8 +45,8 @@ class _HomeSliderState extends State<HomeSlider> {
               pauseAutoPlayOnTouch: true,
               pauseAutoPlayOnManualNavigate: true,
               pauseAutoPlayInFiniteScroll: false,
-              viewportFraction: 1, // عرض العنصر فقط واخفاء الباقي
-              enlargeCenterPage: true, // تكبير العنصر المركزي
+              viewportFraction: 1, // Show only one item and hide others
+              enlargeCenterPage: true, // Enlarge center page
               height: 200,
               onPageChanged: (index, reason) {
                 setState(() {
@@ -139,12 +140,12 @@ class BannerLeftText extends StatelessWidget {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  backgroundColor: mainColor, // 🔥 لون الزر
-                  foregroundColor: Colors.white, // 🔥 لون النص والأيقونات
+                  backgroundColor: mainColor, // Button color
+                  foregroundColor: Colors.white, // Text and icon color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                       10,
-                    ), // 👈 هنا تغيّر الـ radius
+                    ), // Change radius here
                   ),
                 ),
                 child: Text("Get Started"),
@@ -210,13 +211,13 @@ class BannerRightText extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("$text", style: TextStyle(color: mainColor, fontSize: 12)),
+              Text(text, style: TextStyle(color: mainColor, fontSize: 12)),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  backgroundColor: mainColor, // 🔥 لون الزر
-                  foregroundColor: Color(0xff004182), // 🔥 لون النص والأيقونات
+                  backgroundColor: mainColor, // Button color
+                  foregroundColor: Color(0xff004182), // Text and icon color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

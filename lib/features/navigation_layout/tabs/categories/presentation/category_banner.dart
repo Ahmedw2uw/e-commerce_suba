@@ -23,7 +23,9 @@ class CategoryBanner extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           image: DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage(imageUrl),
+            image: imageUrl.startsWith('http')
+                ? NetworkImage(imageUrl) as ImageProvider
+                : AssetImage(imageUrl),
           ),
         ),
         alignment: Alignment.centerLeft,

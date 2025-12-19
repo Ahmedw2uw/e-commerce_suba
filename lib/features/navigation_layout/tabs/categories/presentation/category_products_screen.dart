@@ -1,12 +1,11 @@
 import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/favorite/cubit/favorites_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class CategoryProductsScreen extends StatefulWidget {
   final int categoryId;
@@ -23,49 +22,27 @@ class CategoryProductsScreen extends StatefulWidget {
 }
 
 class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
-  List<int> favoriteIds = [];
-
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
-
-    // تحميل منتجات الـcategory
+    // Load category products
     context.read<ProductsCubit>().loadProductsByCategory(widget.categoryId);
-  }
-
-  Future<void> _loadFavorites() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final favoritesString = prefs.getString('favorites') ?? '[]';
-      final List<dynamic> ids = json.decode(favoritesString);
-      setState(() {
-        favoriteIds = ids.cast<int>();
-      });
-    } catch (e) {
-      print(' Error loading favorites: $e');
-    }
-  }
-
-  Future<void> _toggleFavorite(int productId) async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      if (favoriteIds.contains(productId)) {
-        favoriteIds.remove(productId);
-      } else {
-        favoriteIds.add(productId);
-      }
-    });
-    await prefs.setString('favorites', json.encode(favoriteIds));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50], // Light background
       appBar: AppBar(
-        title: Text('${widget.categoryName} Products'),
+        title: Text(
+          widget.categoryName.trim(),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -76,35 +53,56 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           final products = state.products;
 
           if (state.status == ProductsStatus.loading) {
-            return Center(child: Lottie.asset(AppLottie.loading),);
+             return Center(child: Lottie.asset(AppLottie.loading));
           }
 
           if (products.isEmpty) {
-            return Center(child: Text('No products in this category'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   const Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
+                   const SizedBox(height: 16),
+                   Text(
+                     'No products found in ${widget.categoryName}',
+                     style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                   ),
+                ],
+              ),
+            );
           }
 
           return ListView.builder(
-            padding: EdgeInsets.all(16),
+            physics: const BouncingScrollPhysics(), // Bouncing physics
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
-              final isFav = favoriteIds.contains(product.id);
 
-              return ProductCard(
-                product: product,
-                onFavorite: () => _toggleFavorite(product.id),
-                isFavorite: isFav,
-                onAdd: () {}, // إضافة للسلة - ممكن تتعامل معها بعدين
-                onTap: () {
-                  // هنا الـonTap اللي هتوديك لـProductDetails
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ProductDetails(productId: product.id),
-                    ),
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: BlocBuilder<FavoritesCubit, FavoritesState>(
+                  builder: (context, favoritesState) {
+                    final isFav = favoritesState.ids.contains(product.id);
+                    return ProductCard(
+                      product: product,
+                      onFavorite: () {
+                        context.read<FavoritesCubit>().toggleFavorite(product.id);
+                      },
+                      isFavorite: isFav,
+                      onAdd: () {}, 
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetails(productId: product.id),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               );
             },
           );

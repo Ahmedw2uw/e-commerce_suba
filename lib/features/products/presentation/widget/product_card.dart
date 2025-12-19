@@ -3,9 +3,8 @@ import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../navigation_layout/tabs/home/model/product_model.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:e_commerce/core/models/product_model.dart';
+
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -39,7 +38,7 @@ class ProductCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // صورة المنتج
+            // Product Image
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -62,7 +61,7 @@ class ProductCard extends StatelessWidget {
             ),
             const SizedBox(width: 12),
       
-            // تفاصيل المنتج
+            // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +77,7 @@ class ProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  //    لو اللون موجود هيعرضه
+                  // Display color if available
                   if (product.color != null) ...[
                     Row(
                       children: [
@@ -112,9 +111,9 @@ class ProductCard extends StatelessWidget {
               ),
             ),
       
-            // الأزرار - المعدل
-            Container(
-              width: 70, // ← عرض ثابت بدل Flexible
+            // Buttons - Modified
+            SizedBox(
+              width: 70, // Fixed width instead of Flexible
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -124,22 +123,17 @@ class ProductCard extends StatelessWidget {
                       color: isFavorite ? AppColors.red : AppColors.blue,
                       size: 20,
                     ),
-                    onPressed: () async {
-      
-                      // حفظ في SharedPreferences
-                      _saveFavorite(product.id);
-      
-                      // عمل الـ callback القديم
+                    onPressed: () {
                       onFavorite();
-      
+                      
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
                             isFavorite
-                                ? ' deleted  ${product.name}  from favorates'
-                                : '  ${product.name} added to favorites',
+                                ? 'Removed ${product.name} from favorites'
+                                : '${product.name} added to favorites',
                           ),
-                          duration: Duration(seconds: 1),
+                          duration: const Duration(seconds: 1),
                           backgroundColor: isFavorite ? Colors.grey : Colors.pink,
                         ),
                       );
@@ -175,27 +169,6 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  void _saveFavorite(int productId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      final favoritesString = prefs.getString('favorites') ?? '[]';
-      final List<dynamic> favorites = json.decode(favoritesString);
-
-      if (favorites.contains(productId)) {
-        favorites.remove(productId);
-      } else {
-        favorites.add(productId);
-      }
-
-      await prefs.setString('favorites', json.encode(favorites));
-
-      print('✅ Saved favorite: $productId, All favorites: $favorites');
-    } catch (e) {
-      print('❌ Error saving favorite: $e');
-    }
-  }
-
   void _addToCartWithDebug(BuildContext context, Product product) {
 
     try {
@@ -210,7 +183,7 @@ class ProductCard extends StatelessWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('fail add  ${product.name} to cart '),
+          content: Text('Added ${product.name} to cart'),
           duration: const Duration(seconds: 1),
           backgroundColor: Colors.green,
         ),
@@ -221,7 +194,7 @@ class ProductCard extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(' fail add: ${e.toString()}'),
+            content: Text('Failed to add: ${e.toString()}'),
             duration: const Duration(seconds: 3),
             backgroundColor: Colors.red,
           ),

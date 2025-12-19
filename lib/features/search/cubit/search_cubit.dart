@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
-import 'package:e_commerce/features/search/repostry/search_repository.dart';
+import 'package:e_commerce/core/models/product_model.dart';
+import 'package:e_commerce/features/search/repositories/search_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'search_state.dart';
@@ -30,7 +30,7 @@ class SearchCubit extends Cubit<SearchState> {
         emit(SearchSuccess(products: products, query: query));
       }
     } catch (e) {
-      emit(SearchError(message: 'خطأ في البحث: $e'));
+      emit(SearchError(message: 'Search error: $e'));
     }
   }
 

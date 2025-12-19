@@ -1,7 +1,7 @@
 // lib/features/navigation_layout/tabs/categories/repositories/category_repository.dart
 
-import 'package:e_commerce/features/auth/models/category_model.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/category_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 
 class CategoryRepository {
@@ -10,6 +10,6 @@ class CategoryRepository {
   }
 
   Future<List<Product>> fetchProductsByCategory(int categoryId) async {
-    return await SupabaseService.getProductsByCategoryDirect(categoryId);
+    return await SupabaseService.getProductsByCategory(categoryId);
   }
 }

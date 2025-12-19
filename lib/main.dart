@@ -2,18 +2,16 @@ import 'package:e_commerce/core/theme/app_theme.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/auth/regester/register.dart';
 import 'package:e_commerce/features/cart/data/datasources/cart_local_data_source.dart';
-import 'package:e_commerce/features/cart/data/datasources/cart_remote_data_source.dart';
-import 'package:e_commerce/features/cart/data/repostries/cart_repository_impl.dart';
+import 'package:e_commerce/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:e_commerce/features/cart/domain/repositories/cart_repository.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_commerce/features/cart/presentation/screens/cart_screen.dart';
 import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/categories/repostry/category_repository.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/repositories/category_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/favorite/cubit/favorites_cubit.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/favorite/data/datasource/favorites_remote_data_source.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/favorite/data/repositories/favorites_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
-import 'package:e_commerce/features/products/data/datasource/products_remote_data_source.dart';
 import 'package:e_commerce/features/products/data/repositories/products_repository_impl.dart';
 import 'package:e_commerce/features/products/domain/repositories/products_repository.dart';
 import 'package:e_commerce/features/splash/splash.dart';
@@ -23,13 +21,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'features/navigation_layout/tabs/favorite/data/repositories/favorites_repository.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-
   await dotenv.load(fileName: ".env");
 
   await Supabase.initialize(
@@ -47,40 +42,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-
-        RepositoryProvider<CartRemoteDataSource>(
-          create: (context) => CartRemoteDataSourceImpl(
-            supabaseClient: Supabase.instance.client,
-          ),
-        ),
         RepositoryProvider<CartLocalDataSource>(
           create: (context) => CartLocalDataSourceImpl(),
         ),
         RepositoryProvider<CartRepository>(
           create: (context) => CartRepositoryImpl(
-            remoteDataSource: context.read<CartRemoteDataSource>(),
             localDataSource: context.read<CartLocalDataSource>(),
           ),
         ),
-
-
         RepositoryProvider<ProductsRepository>(
-          create: (context) => ProductsRepositoryImpl(
-            remoteDataSource: ProductsRemoteDataSourceImpl(
-              supabaseClient: Supabase.instance.client,
-            ),
-          ),
+          create: (context) => ProductsRepositoryImpl(),
+        ),
+        RepositoryProvider<FavoritesRepository>(
+          create: (context) => FavoritesRepositoryImpl(),
         ),
       ],
       child: MultiBlocProvider(
         providers: [
-
           BlocProvider<CartBloc>(
             create: (context) =>
                 CartBloc(cartRepository: context.read<CartRepository>())
                   ..add(LoadCartEvent()), 
           ),
-
           BlocProvider<ProductsCubit>(
             create: (context) => ProductsCubit(
               productsRepository: context.read<ProductsRepository>(),
@@ -91,8 +74,8 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => FavoritesCubit(
-              FavoritesRepositoryImpl(FavoritesRemoteDataSourceImpl()),
-            ),
+              context.read<FavoritesRepository>(),
+            )..loadFavorites(),
           ),
         ],
         child: MaterialApp(
@@ -102,10 +85,9 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.getLightThemeData(),
           initialRoute: SplashScreen.routeName,
           routes: {
-
             SplashScreen.routeName: (ctx) => const SplashScreen(),
-            Login.routeName: (ctx) => Login(),
-            SignUp.routeName: (ctx) => SignUp(),
+            Login.routeName: (ctx) => const Login(),
+            SignUp.routeName: (ctx) => const SignUp(),
             NavigationView.routeName: (ctx) => const NavigationView(),
             CartScreen.routeName: (ctx) => const CartScreen(),
           },

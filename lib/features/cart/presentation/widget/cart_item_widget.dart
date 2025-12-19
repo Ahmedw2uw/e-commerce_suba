@@ -24,7 +24,7 @@ class CartItemWidget extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // صورة المنتج
+            // Product image
             Container(
               width: 80,
               height: 80,
@@ -41,7 +41,7 @@ class CartItemWidget extends StatelessWidget {
             ),
             const SizedBox(width: 12),
 
-            // تفاصيل المنتج
+            // Product details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,17 +68,17 @@ class CartItemWidget extends StatelessWidget {
               ),
             ),
 
-            // التحكم في الكمية والحذف
+            // Quantity and remove controls
             Column(
               children: [
-                // زر الحذف
+                // Delete button
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: onRemove,
                 ),
                 const SizedBox(height: 8),
                 
-                // عدّاد الكمية
+                // Quantity counter
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.blue,
@@ -99,7 +99,16 @@ class CartItemWidget extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                        onPressed: () => onQuantityChanged(item.quantity + 1),
+                        onPressed: item.quantity < item.product.stockQuantity
+                            ? () => onQuantityChanged(item.quantity + 1)
+                            : () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Cannot add more items. Max stock reached.'),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
                       ),
                     ],
                   ),

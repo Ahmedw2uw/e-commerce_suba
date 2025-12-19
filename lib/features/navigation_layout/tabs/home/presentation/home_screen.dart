@@ -1,17 +1,18 @@
 import 'package:e_commerce/core/utilits/app_assets.dart';
+import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_products_screen.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/favorite/cubit/favorites_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/categories_avatar.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/presentation/home_widget/home_slider.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
+import 'package:e_commerce/features/products/domain/repositories/products_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:convert';
-// ignore: depend_on_referenced_packages
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,46 +24,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late final List<Map<String, dynamic>> _homeAppliances = [];
   bool _isLoadingHomeAppliances = true;
-  List<int> favoriteIds = [];
   int? selectedCategoryId;
 
-  @override
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadFavorites();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final cubit = context.read<ProductsCubit>();
-      cubit.loadFeaturedProducts();
-      cubit.loadProducts();
+      final productsCubit = context.read<ProductsCubit>();
+      productsCubit.loadFeaturedProducts();
+      productsCubit.loadProducts();
+      
+      context.read<FavoritesCubit>().loadFavorites();
+      
       _loadHomeAppliances();
     });
-  }
-
-  Future<void> _loadFavorites() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final favoritesString = prefs.getString('favorites') ?? '[]';
-      final List<dynamic> ids = json.decode(favoritesString);
-      setState(() {
-        favoriteIds = ids.cast<int>();
-      });
-    } catch (e) {
-      print(' Error loading favorites: $e');
-    }
-  }
-
-  Future<void> _toggleFavorite(int productId) async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      if (favoriteIds.contains(productId)) {
-        favoriteIds.remove(productId);
-      } else {
-        favoriteIds.add(productId);
-      }
-    });
-    await prefs.setString('favorites', json.encode(favoriteIds));
   }
 
   @override
@@ -94,14 +70,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     selectedCategoryId = id as int?;
                   });
 
-                  print('Category selected: $id');
-                  //هنتقل لصفحه لعرض المنتجات الخاصه بال category
+                  // Navigate to category products screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CategoryProductsScreen(
-                        categoryId: id,
-                        categoryName: '$name ',
+                      builder: (context) => BlocProvider(
+                        create: (context) => ProductsCubit(
+                          productsRepository: context.read<ProductsRepository>(),
+                        ),
+                        child: CategoryProductsScreen(
+                          categoryId: id,
+                          categoryName: '$name ',
+                        ),
                       ),
                     ),
                   );
@@ -118,14 +98,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               //-----------
               if (_isLoadingHomeAppliances)
                 SizedBox(
-                  height: 130,
+                  height: 170,
                   child: Center(
-                    child: Lottie.asset("assets/lottie/Loader.json"),
+                    child: Lottie.asset(AppLottie.loading),
                   ),
                 )
               else if (_homeAppliances.isEmpty)
                 SizedBox(
-                  height: 130,
+                  height: 170,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -142,8 +122,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 )
               else
                 SizedBox(
-                  height: 130,
+                  height: 170,
                   child: ListView.separated(
+                    physics: const BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     itemCount: _homeAppliances.length,
                     separatorBuilder: (context, _) => const SizedBox(width: 8),
@@ -167,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       state.products.isEmpty) {
                     return Center(
                       heightFactor: 200,
-                      child: Lottie.asset("assets/lottie/Loading.json"),
+                      child: Lottie.asset(AppLottie.loading),
                     );
                   }
 
@@ -195,22 +176,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                   return Column(
                     children: state.products.map((product) {
-                      final isFav = favoriteIds.contains(product.id);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: ProductCard(
-                          product: product,
-                          onFavorite: () => _toggleFavorite(product.id),
-                          isFavorite: isFav,
-                          onAdd: () {},
-                          onTap: () {
-                            // <--- إضافة onTap هنا
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProductDetails(productId: product.id),
-                              ),
+                        child: BlocBuilder<FavoritesCubit, FavoritesState>(
+                          builder: (context, favoritesState) {
+                            final isFav = favoritesState.ids.contains(product.id);
+                            return ProductCard(
+                              product: product,
+                              onFavorite: () {
+                                context.read<FavoritesCubit>().toggleFavorite(product.id);
+                              },
+                              isFavorite: isFav,
+                              onAdd: () {
+                                // Add to cart logic if needed here
+                              },
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProductDetails(productId: product.id),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -236,7 +224,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _loadHomeAppliances() async {
     setState(() => _isLoadingHomeAppliances = true);
     try {
-      final appliances = await SupabaseService.getHomeAppliances();
+      final products = await SupabaseService.getProductsByCategory(13);
+      final appliances = products.take(4).map((p) {
+        return {
+          'id': p.id,
+          'name': p.name,
+          'image': p.images.isNotEmpty ? p.images[0] : null,
+          'price': p.price,
+        };
+      }).toList();
       setState(() {
         _homeAppliances.clear();
         if (appliances.isNotEmpty) {
@@ -259,52 +255,85 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildHomeApplianceItem(Map<String, dynamic> item) {
     final image = item['image']?.toString();
     final isAsset = item['isAsset'] == true;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        width: 150,
-        height: 130,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: image != null
-            ? isAsset || !image.startsWith('http')
-                  ? Image.asset(
-                      image,
-                      width: 150,
-                      height: 130,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      image,
-                      width: 150,
-                      height: 130,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded /
-                                      progress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.home_outlined, size: 50),
-                      ),
-                    )
-            : Container(
-                color: Colors.grey[200],
-                child: const Icon(
-                  Icons.home_outlined,
-                  size: 50,
-                  color: Colors.grey,
-                ),
+    final name = item['name']?.toString() ?? '';
+
+    return GestureDetector(
+      onTap: () {
+        if (item['id'] != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetails(productId: item['id'] as int),
+            ),
+          );
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 150,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: image != null
+                  ? isAsset || !image.startsWith('http')
+                        ? Image.asset(
+                            image,
+                            width: 150,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            image,
+                            width: 150,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: progress.expectedTotalBytes != null
+                                      ? progress.cumulativeBytesLoaded /
+                                            progress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.home_outlined, size: 50),
+                            ),
+                          )
+                  : Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.home_outlined,
+                        size: 50,
+                        color: Colors.grey,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 150,
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

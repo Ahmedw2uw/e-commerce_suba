@@ -13,7 +13,7 @@ class SearchLoading extends SearchState {
 }
 
 class SearchSuccess extends SearchState {
-  final List<Product> products; // ⬅️ Product بدل ProductModel
+  final List<Product> products; // Product instead of ProductModel
   final String query;
 
   const SearchSuccess({

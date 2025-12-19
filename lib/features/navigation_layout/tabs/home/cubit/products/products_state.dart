@@ -5,8 +5,8 @@ enum ProductsStatus { initial, loading, success, failure }
 class ProductsState extends Equatable {
   final ProductsStatus status;
 
-  final List<Product> products; // المعروض
-  final List<Product> allProducts; // كل المنتجات
+  final List<Product> products; // Displayed products
+  final List<Product> allProducts; // All products
 
   final Product? selectedProduct;
 

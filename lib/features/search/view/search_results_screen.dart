@@ -1,15 +1,16 @@
+import 'dart:async';
 import 'package:e_commerce/core/utilits/app_lottie.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/products/data/datasource/products_remote_data_source.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 import 'package:e_commerce/features/search/view/custom_search_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SearchCubit extends Cubit<SearchState> {
   final ProductsRemoteDataSourceImpl productsRemoteDataSource;
+  Timer? _debounce;
 
   SearchCubit({required this.productsRemoteDataSource})
       : super(SearchInitial());
@@ -31,17 +32,25 @@ class SearchCubit extends Cubit<SearchState> {
         emit(SearchSuccess(products: products, query: query));
       }
     } catch (e) {
-      emit(SearchError('خطأ في البحث: $e'));
+      emit(SearchError('Search error: $e'));
     }
   }
 
   void searchInstant(String query) {
-    // Debounce بسيط
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (query.isNotEmpty) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (query.trim().isNotEmpty) {
         search(query);
+      } else {
+        emit(SearchInitial());
       }
     });
+  }
+
+  @override
+  Future<void> close() {
+    _debounce?.cancel();
+    return super.close();
   }
 }
 
@@ -92,9 +101,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
     _searchFocusNode = FocusNode();
     
     _searchCubit = SearchCubit(
-      productsRemoteDataSource: ProductsRemoteDataSourceImpl(
-        supabaseClient: Supabase.instance.client,
-      ),
+      productsRemoteDataSource: ProductsRemoteDataSourceImpl(),
     );
 
     if (widget.initialQuery.isNotEmpty) {
@@ -153,7 +160,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 Icon(Icons.search, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
                 Text(
-                  'اكتب للبحث عن منتج',
+                  'Type to search for a product',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -162,13 +169,13 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         }
 
         if (state is SearchLoading) {
-          return  Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Lottie.asset(AppLottie.loading),
-                SizedBox(height: 16),
-                Text('جاري البحث...'),
+                const SizedBox(height: 16),
+                const Text('Searching...'),
               ],
             ),
           );
@@ -194,7 +201,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   onPressed: () {
                     context.read<SearchCubit>().search(_searchController.text);
                   },
-                  child: const Text('حاول مرة أخرى'),
+                  child: const Text('Try Again'),
                 ),
               ],
             ),
@@ -209,7 +216,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 const Icon(Icons.search_off, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
-                  'لا توجد نتائج لـ "${state.query}"',
+                  'No results for "${state.query}"',
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
@@ -218,7 +225,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     _searchController.clear();
                     _searchFocusNode.requestFocus();
                   },
-                  child: const Text('حاول بكلمة أخرى'),
+                  child: const Text('Try another word'),
                 ),
               ],
             ),
@@ -237,14 +244,14 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   Widget _buildResultsList(SearchSuccess state) {
     return Column(
       children: [
-        // عداد النتائج
+        // Results counter
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.grey[50],
           child: Row(
             children: [
               Text(
-                '${state.products.length}  result to "${state.query}"',
+                '${state.products.length} results for "${state.query}"',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -255,14 +262,14 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 IconButton(
                   icon: const Icon(Icons.sort),
                   onPressed: () {
-                    // TODO: إضافة sorting logic
+                    // TODO: Add sorting logic
                   },
                 ),
             ],
           ),
         ),
         
-        // قائمة المنتجات
+        // Product List
         Expanded(
           child: state.products.isEmpty
               ? const Center(
@@ -283,15 +290,15 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     final product = state.products[index];
                     return ProductCard(
                       product: product,
-                      isFavorite: false, // TODO: جلب حالة المفضلة
+                      isFavorite: false, // TODO: Fetch favorite status
                       onFavorite: () async {
-                        // TODO: استدعاء SupabaseService.toggleFavorite
+                        // TODO: Call SupabaseService.toggleFavorite
                       },
                       onAdd: () {
-                        // TODO: إضافة للسلة
+                        // TODO: Add to cart
                       },
                       onTap: () {
-                        // TODO: navigation لصفحة المنتج
+                        // TODO: Navigation to product page
                       },
                     );
                   },

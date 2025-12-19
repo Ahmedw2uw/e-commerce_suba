@@ -68,7 +68,7 @@ class _LoginState extends State<Login> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Wlecom Back, ${user.name}!'),
+              content: Text('Welcome Back, ${user.name}!'),
               backgroundColor: Colors.green,
             ),
           );

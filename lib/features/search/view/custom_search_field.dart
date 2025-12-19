@@ -4,14 +4,14 @@ import 'package:flutter_svg/svg.dart';
 
 class CustomSearchField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted; // ⬅️ أضف هذه السطر
+  final ValueChanged<String>? onSubmitted; // Add this line
   final TextEditingController? controller;
   final FocusNode? focusNode;
 
   const CustomSearchField({
     super.key, 
     this.onChanged,
-    this.onSubmitted, // ⬅️ أضف هذه السطر
+    this.onSubmitted, // Add this line
     this.controller,
     this.focusNode,
   });
@@ -23,7 +23,7 @@ class CustomSearchField extends StatelessWidget {
       controller: controller,
       focusNode: focusNode,
       onChanged: onChanged,
-      onSubmitted: onSubmitted, // ⬅️ استخدمها هنا
+      onSubmitted: onSubmitted, // Use it here
       textInputAction: TextInputAction.search,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(

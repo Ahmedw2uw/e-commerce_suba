@@ -3,10 +3,12 @@
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/core/utilits/app_assets.dart';
 import 'package:e_commerce/core/utilits/app_lottie.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/presentation/category_banner.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_cubit.dart';
+import 'package:e_commerce/core/models/category_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
+import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -67,7 +69,7 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
   Widget _buildCategoriesView(CategoryLoaded state) {
     return Row(
       children: [
-        // قائمة التصنيفات الجانبية
+        // Sidebar categories list
         Container(
           width: 120,
           color: AppColors.litghGray,
@@ -108,11 +110,11 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
           ),
         ),
 
-        // محتوى التصنيف المحدد
+        // Selected category content
         Expanded(
           child: SingleChildScrollView(
             child: Align(
-              alignment: Alignment.topLeft, // يضمن أن المحتوى في أعلى الشاشة
+              alignment: Alignment.topLeft, // Ensures content is at top
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -130,15 +132,15 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
                   ),
                   const SizedBox(height: 20),
 
-                  // البانر
+                  // Banner
                   CategoryBanner(
                     title: state.categories[state.selectedIndex].name,
-                    imageUrl: _getBannerImage(state.selectedIndex),
+                    imageUrl: _getBannerImage(state.categories[state.selectedIndex]),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // المنتجات
+                  // Products
                   if (state.products.isNotEmpty)
                     GridView.builder(
                       shrinkWrap: true,
@@ -168,53 +170,68 @@ class _CategoriesTabViewState extends State<CategoriesTabView> {
   }
 
   Widget _buildProductItem(Product product) {
-    return Column(
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: product.images.isNotEmpty
-                ? Image.network(
-                    product.images.first,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
-                      );
-                    },
-                  )
-                : Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported),
-                  ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetails(productId: product.id),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          product.name,
-          style: const TextStyle(fontSize: 14),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        Text(
-          '\$${product.price.toStringAsFixed(2)}',
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
+        );
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: product.images.isNotEmpty
+                  ? Image.network(
+                      product.images.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported),
+                        );
+                      },
+                    )
+                  : Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported),
+                    ),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            product.name,
+            style: const TextStyle(fontSize: 14),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            '\$${product.price.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  String _getBannerImage(int selectedIndex) {
-    if (selectedIndex == 0) {
-      return AppImages.men_banner;
-    } else if (selectedIndex == 10) {
-      return AppImages.women_banner;
+  String _getBannerImage(Category category) {
+    if (category.image != null && category.image!.isNotEmpty) {
+      return category.image!;
     }
-    return AppImages.men_banner;
+    // Fallback images based on category name
+    final name = category.name.toLowerCase();
+    if (name.contains('men')) {
+      return AppImages.menBanner;
+    } else if (name.contains('women')) {
+      return AppImages.womenBanner;
+    }
+    return AppImages.menBanner;
   }
 }

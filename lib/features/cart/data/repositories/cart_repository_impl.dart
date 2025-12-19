@@ -1,24 +1,33 @@
 // lib/features/cart/data/repositories/cart_repository_impl.dart
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/cart/data/datasources/cart_local_data_source.dart';
-import 'package:e_commerce/features/cart/data/datasources/cart_remote_data_source.dart';
 import 'package:e_commerce/features/cart/data/models/cart_item_model.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:e_commerce/features/cart/domain/repositories/cart_repository.dart';
+import 'package:e_commerce/features/auth/services/supabase_service.dart';
 
 class CartRepositoryImpl implements CartRepository {
-  final CartRemoteDataSource remoteDataSource;
   final CartLocalDataSource localDataSource;
 
   CartRepositoryImpl({
-    required this.remoteDataSource,
     required this.localDataSource,
   });
 
   @override
   Future<List<CartItemEntity>> getCartItems() async {
     try {
-      final remoteItems = await remoteDataSource.getCartItems();
+      final cartData = await SupabaseService.getCart();
+      final cartList = cartData['cart'] as List;
+      
+      final remoteItems = cartList.map((item) {
+        return CartItemModel(
+          id: item['id'].toString(),
+          product: Product.fromJson(item['product']),
+          quantity: item['quantity'] as int,
+          addedAt: DateTime.parse(item['created_at']),
+        );
+      }).toList();
+      
       await localDataSource.saveCartItems(remoteItems);
       return remoteItems;
     } catch (e) {
@@ -33,8 +42,8 @@ class CartRepositoryImpl implements CartRepository {
     required int quantity,
   }) async {
     try {
-      await remoteDataSource.addToCart(
-        product: product,
+      await SupabaseService.addToCart(
+        productId: product.id,
         quantity: quantity,
       );
     } catch (e) {
@@ -45,7 +54,7 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<void> removeFromCart(String cartItemId) async {
     try {
-      await remoteDataSource.removeFromCart(cartItemId);
+      await SupabaseService.removeFromCart(int.parse(cartItemId));
     } catch (e) {
       throw Exception('Failed to remove item');
     }
@@ -57,9 +66,9 @@ class CartRepositoryImpl implements CartRepository {
     required int newQuantity,
   }) async {
     try {
-      await remoteDataSource.updateQuantity(
-        cartItemId: cartItemId,
-        newQuantity: newQuantity,
+      await SupabaseService.updateCartItem(
+        cartItemId: int.parse(cartItemId),
+        quantity: newQuantity,
       );
     } catch (e) {
       throw Exception('Failed to update quantity');
@@ -69,7 +78,7 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<void> clearCart() async {
     try {
-      await remoteDataSource.clearCart();
+      await SupabaseService.clearCart();
       await localDataSource.clearCart();
     } catch (e) {
       throw Exception('Failed to clear cart');

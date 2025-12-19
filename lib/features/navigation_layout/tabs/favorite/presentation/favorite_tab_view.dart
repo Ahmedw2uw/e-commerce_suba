@@ -2,9 +2,8 @@ import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:e_commerce/features/products/presentation/widget/product_card.dart';
 
@@ -16,68 +15,62 @@ class FavoriteTabView extends StatefulWidget {
 }
 
 class _FavoriteTabViewState extends State<FavoriteTabView> {
-  List<int> favoriteIds = [];
+  
   List<Product> favoriteProducts = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
-  }
-
-  Future<void> _loadFavorites() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final favoritesString = prefs.getString('favorites') ?? '[]';
-      final List<dynamic> ids = json.decode(favoritesString);
-
-      setState(() {
-        favoriteIds = ids.cast<int>();
-        isLoading = false;
-      });
-
-      _loadFavoriteProducts();
-    } catch (e) {
-      print(' Error loading favorites: $e');
-      setState(() => isLoading = false);
-    }
+    _loadFavoriteProducts();
   }
 
   Future<void> _loadFavoriteProducts() async {
+    setState(() => isLoading = true);
     try {
-      final allProducts = await SupabaseService.getAllProductsDirect();
-      final favoriteProductsList = allProducts
-          .where((product) => favoriteIds.contains(product.id))
-          .toList();
+      final favoriteProductsList = await SupabaseService.getFavoriteProducts();
 
       setState(() {
         favoriteProducts = favoriteProductsList;
+        isLoading = false;
       });
     } catch (e) {
-      print(' Error loading favorite products: $e');
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading favorite products: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _toggleFavorite(int productId) async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      if (favoriteIds.contains(productId)) {
-        favoriteIds.remove(productId);
-        favoriteProducts.removeWhere((p) => p.id == productId);
-      } else {
-        favoriteIds.add(productId);
-        _loadFavoriteProducts(); // لإعادة جلب المنتج وإضافته للقائمة
+    try {
+      // The new toggleFavorite function handles adding/removing in the database
+      await SupabaseService.toggleFavorite(productId: productId);
+      
+      // Reload the list to reflect the change
+      await _loadFavoriteProducts();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error toggling favorite: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    });
-    await prefs.setString('favorites', json.encode(favoriteIds));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('المفضلة'),
+        title: const Text('Favorites'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -92,13 +85,14 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
                   Icon(Icons.favorite_border, size: 100, color: Colors.grey),
                   SizedBox(height: 20),
                   Text(
-                    'لا توجد منتجات في المفضلة',
+                    'No products in favorites',
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
             )
           : ListView.builder(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(16),
               itemCount: favoriteProducts.length,
               itemBuilder: (context, index) {
@@ -106,7 +100,7 @@ class _FavoriteTabViewState extends State<FavoriteTabView> {
                 return ProductCard(
                   product: product,
                   isFavorite: true,
-                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  }, onTap: () { // <--- إضافة onTap هنا
+                  onFavorite: () => _toggleFavorite(product.id), onAdd: () {  }, onTap: () { // Add onTap here
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

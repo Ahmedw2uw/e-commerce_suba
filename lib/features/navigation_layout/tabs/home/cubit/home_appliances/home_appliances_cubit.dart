@@ -11,7 +11,13 @@ class HomeAppliancesCubit extends Cubit<HomeAppliancesState> {
   Future<void> loadAppliances() async {
     emit(state.copyWith(status: HomeAppliancesStatus.loading));
     try {
-      final appliances = await SupabaseService.getHomeAppliances();
+      final products = await SupabaseService.getProductsByCategory(13);
+      final appliances = products.map((p) => {
+        'id': p.id,
+        'name': p.name,
+        'image': p.images.isNotEmpty ? p.images[0] : null,
+        'price': p.price,
+      }).toList();
       if (appliances.isEmpty) {
         appliances.addAll([
           {'image': AppImages.laptop, 'isAsset': true},

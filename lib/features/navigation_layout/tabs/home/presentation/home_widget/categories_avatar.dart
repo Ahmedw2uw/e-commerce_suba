@@ -1,5 +1,5 @@
 import 'package:e_commerce/core/utilits/app_assets.dart';
-import 'package:e_commerce/features/auth/models/category_model.dart';
+import 'package:e_commerce/core/models/category_model.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +45,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
         _error = e.toString();
         _isLoading = false;
       });
-      print(' Error loading categories: $e');
+      debugPrint('Error loading categories: $e');
     }
   }
 
@@ -68,7 +68,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     } else if (lowerName.contains('headphone') || lowerName.contains('audio')) {
       return AppImages.headphones;
     }
-    return AppImages.laptop; // صورة افتراضية عامة
+    return AppImages.laptop; // Default general image
   }
 
   Widget _buildCategory(
@@ -87,13 +87,17 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: image.startsWith('http')
-                    ? NetworkImage(image)
-                    : AssetImage(image) as ImageProvider,
+              height: 70,
+              width: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12), // Reduced curve
+                color: Colors.grey[100],
+                image: DecorationImage(
+                  image: image.startsWith('http')
+                      ? NetworkImage(image)
+                      : AssetImage(image) as ImageProvider,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 6),
@@ -116,13 +120,14 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
 
   Widget _buildStaticCategories() {
     return SizedBox(
-      height: 220,
+      height: 220, // Height enough for two rows
       child: GridView.count(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
-        crossAxisCount: 2,
-        mainAxisSpacing: 5,
-        crossAxisSpacing: 5,
-        childAspectRatio: 0.8,
+        crossAxisCount: 2, // two rows
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.1, 
         children: [
           _buildCategory("Women's Fashion", AppImages.women),
           _buildCategory("Men's Fashion", AppImages.men),
@@ -138,19 +143,27 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     return SizedBox(
       height: 220,
       child: GridView.builder(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 0.8,
+          childAspectRatio: 1.1,
         ),
-        itemCount: 6, // عدد العناصر الوهمية أثناء التحميل
+        itemCount: 6,
         itemBuilder: (context, index) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(radius: 35, backgroundColor: Colors.grey[200]),
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               const SizedBox(height: 6),
               Container(
                 width: 70,
@@ -175,12 +188,13 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
     return SizedBox(
       height: 220,
       child: GridView.builder(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 0.8,
+          childAspectRatio: 1.1,
         ),
         itemCount: _categories.length,
         itemBuilder: (context, index) {
@@ -215,7 +229,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '⚠️ فشل تحميل الفئات',
+                '⚠️ Failed to load categories',
                 style: const TextStyle(color: Colors.red, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
@@ -231,7 +245,7 @@ class _CategoriesAvatarsState extends State<CategoriesAvatars> {
                   vertical: 8,
                 ),
               ),
-              child: const Text('إعادة المحاولة'),
+              child: const Text('Retry'),
             ),
           ],
         ),

@@ -1,6 +1,6 @@
 // lib/features/cart/presentation/bloc/cart_bloc.dart
 import 'package:bloc/bloc.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:e_commerce/features/cart/domain/repositories/cart_repository.dart';
@@ -52,7 +52,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         quantity: event.quantity,
       );
       
-      // إعادة تحميل السلة
+      // Reload cart
       add(LoadCartEvent());
     } catch (e) {
       emit(state.copyWith(
@@ -80,6 +80,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     Emitter<CartState> emit,
   ) async {
     try {
+      // Check stock
+      final currentItem = state.cartItems.firstWhere((item) => item.id == event.cartItemId);
+      if (event.newQuantity > currentItem.product.stockQuantity) {
+        emit(state.copyWith(
+          errorMessage: 'Cannot add more items. Max stock reached.',
+          status: CartStatus.failure, // Temporarily set failure so UI listens to it
+        ));
+        // Reset status to success quickly so subsequent actions work, or just load cart again
+        add(LoadCartEvent()); 
+        return;
+      }
+
+
       await cartRepository.updateQuantity(
         cartItemId: event.cartItemId,
         newQuantity: event.newQuantity,
@@ -96,6 +109,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     ClearCartEvent event,
     Emitter<CartState> emit,
   ) async {
+    emit(state.copyWith(status: CartStatus.loading));
     try {
       await cartRepository.clearCart();
       emit(const CartState(status: CartStatus.success));

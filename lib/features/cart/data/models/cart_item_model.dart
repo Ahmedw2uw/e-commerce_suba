@@ -1,5 +1,4 @@
-
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';
 
 class CartItemModel extends CartItemEntity {

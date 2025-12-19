@@ -1,7 +1,7 @@
 // lib/features/navigation_layout/tabs/categories/state/category_state.dart
 
-import 'package:e_commerce/features/auth/models/category_model.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/category_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' hide Category;
 

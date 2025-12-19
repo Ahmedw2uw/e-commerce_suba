@@ -8,12 +8,14 @@ class SearchAndCartWidget extends StatelessWidget {
   final TextEditingController? searchController;
   final FocusNode? searchFocusNode;
   final ValueChanged<String>? onSearchSubmitted;
+  final ValueChanged<String>? onSearchChanged;
 
   const SearchAndCartWidget({
     super.key,
     this.searchController,
     this.searchFocusNode,
     this.onSearchSubmitted,
+    this.onSearchChanged,
   });
 
   @override
@@ -27,7 +29,8 @@ class SearchAndCartWidget extends StatelessWidget {
             child: CustomSearchField(
               controller: searchController,
               focusNode: searchFocusNode,
-              onSubmitted: onSearchSubmitted, 
+              onSubmitted: onSearchSubmitted,
+              onChanged: onSearchChanged,
             ),
           ),
           InkWell(

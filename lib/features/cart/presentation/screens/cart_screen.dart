@@ -52,8 +52,8 @@ class CartScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Lottie.asset(AppLottie.loading),
-                  SizedBox(height: 16),
-                  Text(' loading '),
+                  const SizedBox(height: 16),
+                  const Text('Loading...'),
                 ],
               ),
             );
@@ -71,11 +71,11 @@ class CartScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'empty cart ',
+                    'Empty Cart',
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                   Text(
-                    'add some products to your cart',
+                    'Add some products to your cart',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],
@@ -85,27 +85,22 @@ class CartScreen extends StatelessWidget {
 
           return Column(
             children: [
-              // قائمة المنتجات
+              // Product list
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.cartItems.length,
                   itemBuilder: (context, index) {
                     final item = state.cartItems[index];
-                    print(
-                      '   product ${index + 1}: ${item.product.name} × ${item.quantity}',
-                    );
 
                     return CartItemWidget(
                       item: item,
                       onRemove: () {
-                        print("`: ${item.product.name}`");
                         context.read<CartBloc>().add(
                           RemoveFromCartEvent(cartItemId: item.id),
                         );
                       },
                       onQuantityChanged: (newQuantity) {
-                        print("  ${item.product.name} $newQuantity");
                         context.read<CartBloc>().add(
                           UpdateCartItemQuantityEvent(
                             cartItemId: item.id,
@@ -118,7 +113,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
 
-              // قسم الإجمالي والدفع
+              // Total and payment section
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -131,7 +126,7 @@ class CartScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          ' product count:',
+                          'Product Count:',
                           style: TextStyle(fontSize: 16),
                         ),
                         Text(
@@ -148,14 +143,14 @@ class CartScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          ' sumition :',
+                          'Total:',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
-                          'ج.م ${state.totalAmount.toStringAsFixed(2)}',
+                          'EGP ${state.totalAmount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -179,7 +174,7 @@ class CartScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Text(
-                          ' Proceed to Checkout',
+                          'Proceed to Checkout',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),

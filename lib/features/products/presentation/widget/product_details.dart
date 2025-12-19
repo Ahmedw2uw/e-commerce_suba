@@ -1,8 +1,9 @@
 import 'package:e_commerce/core/utilits/app_lottie.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/favorite/cubit/favorites_cubit.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/home/cubit/products/products_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:lottie/lottie.dart';
 
@@ -19,11 +20,12 @@ class _ProductDetailsPageState extends State<ProductDetails> {
   String? selectedSize;
   String? selectedColor;
   int quantity = 1;
+  int _currentImageIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    // تحميل بيانات المنتج
+    // Load product data
     context.read<ProductsCubit>().loadProductById(widget.productId);
   }
 
@@ -31,11 +33,27 @@ class _ProductDetailsPageState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تفاصيل المنتج'),
+        title: const Text('Product Details'),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
+        actions: [
+          BlocBuilder<FavoritesCubit, FavoritesState>(
+            builder: (context, state) {
+              final isFavorite = state.ids.contains(widget.productId);
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : Colors.grey,
+                ),
+                onPressed: () {
+                  context.read<FavoritesCubit>().toggleFavorite(widget.productId);
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
@@ -54,7 +72,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                   Text(
                     state.errorMessage.isNotEmpty
                         ? state.errorMessage
-                        : 'فشل في تحميل المنتج',
+                        : 'Failed to load product',
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -63,7 +81,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                         widget.productId,
                       );
                     },
-                    child: const Text('إعادة المحاولة'),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -79,42 +97,43 @@ class _ProductDetailsPageState extends State<ProductDetails> {
 
   Widget _buildProductDetails(Product product) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // صور المنتج
+            // Product images
             _buildProductImages(product),
 
             const SizedBox(height: 16),
 
-            // اسم المنتج ومعلومات البيع والتقييم
+            // Product header
             _buildProductHeader(product),
 
             const SizedBox(height: 16),
 
-            // السعر
+            // Price section
             _buildPriceSection(product),
 
             const SizedBox(height: 16),
 
-            // الوصف
+            // Description
             _buildDescription(product),
 
             const SizedBox(height: 20),
 
-            // المقاسات
-            _buildSizeSection(),
+            // Size section
+            _buildSizeSection(product),
 
             const SizedBox(height: 20),
 
-            // الألوان
-            _buildColorSection(),
+            // Color section
+            _buildColorSection(product),
 
             const SizedBox(height: 30),
 
-            // السعر الإجمالي وإضافة للسلة
+            // Bottom section
             _buildBottomSection(product),
           ],
         ),
@@ -124,32 +143,74 @@ class _ProductDetailsPageState extends State<ProductDetails> {
 
   Widget _buildProductImages(Product product) {
     return Container(
-      height: 300,
+      height: 350,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.grey.shade50, // Slightly lighter background
+        borderRadius: BorderRadius.circular(20),
       ),
       child: product.images.isNotEmpty
-          ? PageView.builder(
-              itemCount: product.images.length,
-              itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    product.images[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 64,
-                          color: Colors.grey,
+          ? Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                PageView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: product.images.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentImageIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        product.images[index],
+                        fit: BoxFit.contain, // Show whole product
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                if (product.images.length > 1)
+                  Positioned(
+                    bottom: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(
+                          product.images.length,
+                          (index) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentImageIndex == index ? 20 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: _currentImageIndex == index
+                                  ? Colors.white
+                                  : Colors.white.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                );
-              },
+              ],
             )
           : const Center(
               child: Icon(
@@ -175,7 +236,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
             const Icon(Icons.shopping_bag, size: 16, color: Colors.grey),
             const SizedBox(width: 4),
             Text(
-              '3,230 sold', // هنا ممكن تحط رقم حقيقي من الداتا
+              '3,230 sold', // You can put a real number from data here
               style: TextStyle(color: Colors.grey.shade600),
             ),
             const SizedBox(width: 16),
@@ -199,7 +260,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'السعر',
+            'Price',
             style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
           ),
           Text(
@@ -224,7 +285,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'الوصف',
+              'Description',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -246,7 +307,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                   });
                 },
                 child: Text(
-                  isExpanded ? 'قراءة أقل' : 'قراءة المزيد',
+                  isExpanded ? 'Read Less' : 'Read More',
                   style: const TextStyle(
                     color: Colors.blue,
                     fontWeight: FontWeight.bold,
@@ -259,14 +320,28 @@ class _ProductDetailsPageState extends State<ProductDetails> {
     );
   }
 
-  Widget _buildSizeSection() {
-    final sizes = ['38', '39', '40', '41', '42'];
+  Widget _buildSizeSection(Product product) {
+    if (product.size == null || product.size!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final sizes = product.size!.split(',').map((e) => e.trim()).toList();
+    if (selectedSize == null && sizes.isNotEmpty) {
+      // Set default selection if not set
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if(mounted) {
+           setState(() {
+             selectedSize = sizes.first;
+           });
+        }
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'المقاس',
+          'Size',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -310,31 +385,42 @@ class _ProductDetailsPageState extends State<ProductDetails> {
     );
   }
 
-  Widget _buildColorSection() {
-    final colors = [
-      {'name': 'أسود', 'color': Colors.black},
-      {'name': 'أبيض', 'color': Colors.white},
-      {'name': 'أزرق', 'color': Colors.blue},
-      {'name': 'أحمر', 'color': Colors.red},
-    ];
+  Widget _buildColorSection(Product product) {
+    if (product.color == null || product.color!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final colors = product.color!.split(',').map((e) => e.trim()).toList();
+     if (selectedColor == null && colors.isNotEmpty) {
+      // Set default selection if not set
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if(mounted) {
+           setState(() {
+             selectedColor = colors.first;
+           });
+        }
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'اللون',
+          'Color',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: colors.map((colorData) {
-            bool isSelected = selectedColor == colorData['name'];
+          children: colors.map((colorName) {
+            bool isSelected = selectedColor == colorName;
+            final colorValue = _getColorFromString(colorName);
+            
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedColor = colorData['name'] as String;
+                  selectedColor = colorName;
                 });
               },
               child: Container(
@@ -357,14 +443,14 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                       width: 20,
                       height: 20,
                       decoration: BoxDecoration(
-                        color: colorData['color'] as Color,
+                        color: colorValue,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.grey.shade300),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      colorData['name'] as String,
+                      colorName,
                       style: TextStyle(
                         fontWeight: isSelected
                             ? FontWeight.bold
@@ -382,6 +468,36 @@ class _ProductDetailsPageState extends State<ProductDetails> {
     );
   }
 
+  Color _getColorFromString(String colorName) {
+    switch (colorName.toLowerCase()) {
+      case 'black':
+        return Colors.black;
+      case 'white':
+        return Colors.white;
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'yellow':
+        return Colors.yellow;
+      case 'orange':
+        return Colors.orange;
+      case 'purple':
+        return Colors.purple;
+      case 'brown': 
+        return Colors.brown;
+      case 'pink':
+        return Colors.pink;
+      case 'grey':
+      case 'gray':
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
+  }
+
   Widget _buildBottomSection(Product product) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -390,7 +506,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -402,7 +518,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'السعر الإجمالي',
+                'Total Price',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               Text(
@@ -421,14 +537,14 @@ class _ProductDetailsPageState extends State<ProductDetails> {
             height: 56,
             child: ElevatedButton(
               onPressed: () {
-                // إضافة للسلة
+                // Add to cart
                 context.read<CartBloc>().add(
                   AddToCartEvent(product: product, quantity: quantity),
                 );
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('تم إضافة ${product.name} إلى السلة'),
+                    content: Text('Added ${product.name} to cart'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -440,7 +556,7 @@ class _ProductDetailsPageState extends State<ProductDetails> {
                 ),
               ),
               child: const Text(
-                'إضافة إلى السلة',
+                'Add to Cart',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

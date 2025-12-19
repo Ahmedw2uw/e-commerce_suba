@@ -1,11 +1,12 @@
-import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
+import 'package:e_commerce/core/models/address_model.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/profile/text_feald.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/profile/change_password_dialog.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/profile/change_email_dialog.dart';
 import 'package:flutter/material.dart' hide TextField;
 import 'package:e_commerce/core/theme/app_colors.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
-import 'package:e_commerce/features/auth/models/user_model.dart';
-import 'package:lottie/lottie.dart';
+import 'package:e_commerce/core/models/user_model.dart' hide Address;
 
 class ProfileTabView extends StatefulWidget {
   const ProfileTabView({super.key});
@@ -25,24 +26,22 @@ class _ProfileTabViewState extends State<ProfileTabView> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
   bool _isDefaultAddress = false;
-
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
-
   Future<void> _loadUserData() async {
     setState(() {
       _isLoading = true;
     });
-
     try {
       final user = await SupabaseService.getCurrentUser();
       if (user != null) {
@@ -50,9 +49,8 @@ class _ProfileTabViewState extends State<ProfileTabView> {
           _currentUser = user;
           _nameController.text = user.name;
           _emailController.text = user.email;
-          _phoneController.text = user.phone;
+          _phoneController.text = user.phone ?? '';
         });
-
         await _loadUserAddresses();
       }
     } catch (e) {
@@ -64,7 +62,6 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       });
     }
   }
-
   Future<void> _loadUserAddresses() async {
     try {
       final addresses = await SupabaseService.getUserAddresses();
@@ -90,12 +87,14 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       print('Error loading addresses: $e');
     }
   }
-
-  Future<void> _updateProfile() async {
+  Future<void> _updateProfile({FocusNode? nodeToFocus}) async {
     if (!_isEditing) {
       setState(() {
         _isEditing = true;
       });
+      if (nodeToFocus != null) {
+        nodeToFocus.requestFocus();
+      }
       return;
     }
 
@@ -123,17 +122,14 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       });
     }
   }
-
   Future<void> _addAddress() async {
     if (_streetController.text.isEmpty || _cityController.text.isEmpty) {
       _showErrorSnackBar('Please fill in street and city');
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       await SupabaseService.addAddress(
         street: _streetController.text.trim(),
@@ -142,19 +138,15 @@ class _ProfileTabViewState extends State<ProfileTabView> {
         zipCode: _zipCodeController.text.trim(),
         isDefault: _isDefaultAddress || _addresses.isEmpty,
       );
-
       _streetController.clear();
       _cityController.clear();
       _stateController.clear();
       _zipCodeController.clear();
       _isDefaultAddress = false;
-
       await _loadUserAddresses();
-
       setState(() {
         _showAddressForm = false;
       });
-
       _showSuccessSnackBar('Address added successfully');
     } catch (e) {
       _showErrorSnackBar('Failed to add address: $e');
@@ -164,7 +156,6 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       });
     }
   }
-
   Future<void> _deleteAddress(int addressId) async {
     showDialog(
       context: context,
@@ -193,7 +184,6 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       ),
     );
   }
-
   Future<void> _setDefaultAddress(int addressId) async {
     try {
       await SupabaseService.setDefaultAddress(addressId);
@@ -203,13 +193,11 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       _showErrorSnackBar('Failed to update default address: $e');
     }
   }
-
   void _showAddAddressForm() {
     setState(() {
       _showAddressForm = true;
     });
   }
-
   void _hideAddAddressForm() {
     setState(() {
       _showAddressForm = false;
@@ -220,40 +208,24 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       _isDefaultAddress = false;
     });
   }
-
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _streetController.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
-    _zipCodeController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _currentUser == null) {
-      return  Scaffold(
+      return const Scaffold(
         backgroundColor: Colors.white,
-        body: SafeArea(child: Center(child: Lottie.asset(AppLottie.loading),)),
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
       );
     }
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -266,16 +238,15 @@ class _ProfileTabViewState extends State<ProfileTabView> {
                 // Header Section
                 _buildHeaderSection(),
                 const SizedBox(height: 30),
-
                 // Personal Information
                 _buildPersonalInfoSection(),
-
+                if (_isEditing) _buildActionButtons(),
+                const SizedBox(height: 24),
+                // Security Section
+                _buildSecuritySection(),
                 // Addresses Section
                 _buildAddressesSection(),
                 const SizedBox(height: 32),
-
-                // Action Buttons
-                if (_isEditing) _buildActionButtons(),
               ],
             ),
           ),
@@ -283,7 +254,6 @@ class _ProfileTabViewState extends State<ProfileTabView> {
       ),
     );
   }
-
   Widget _buildHeaderSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -322,8 +292,9 @@ class _ProfileTabViewState extends State<ProfileTabView> {
           title: "Your Name",
           hintText: 'Enter your name',
           controller: _nameController,
+          focusNode: _nameFocusNode,
           suffixIcon: _isEditing ? null : Icons.edit,
-          onIconPressed: _isEditing ? null : _updateProfile,
+          onIconPressed: _isEditing ? null : () => _updateProfile(nodeToFocus: _nameFocusNode),
           readOnly: !_isEditing,
         ),
         const SizedBox(height: 24),
@@ -343,11 +314,64 @@ class _ProfileTabViewState extends State<ProfileTabView> {
           title: 'Your mobile number',
           hintText: 'Enter your mobile number',
           controller: _phoneController,
+          focusNode: _phoneFocusNode,
           suffixIcon: _isEditing ? null : Icons.edit,
-          onIconPressed: _isEditing ? null : _updateProfile,
+          onIconPressed: _isEditing ? null : () => _updateProfile(nodeToFocus: _phoneFocusNode),
           readOnly: !_isEditing,
           keyboardType: TextInputType.phone,
         ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildSecuritySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Security',
+          style: TextStyle(
+            color: AppColors.blue,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        Card(
+          elevation: 2,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.lock, color: AppColors.blue),
+                title: Text('Change Password'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const ChangePasswordDialog(),
+                  );
+                },
+              ),
+              Divider(height: 1, thickness: 1),
+              ListTile(
+                leading: Icon(Icons.email, color: AppColors.blue),
+                title: Text('Change Email'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ChangeEmailDialog(
+                      currentEmail: _currentUser?.email ?? '',
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        
         const SizedBox(height: 24),
       ],
     );
@@ -474,10 +498,13 @@ class _ProfileTabViewState extends State<ProfileTabView> {
                       backgroundColor: AppColors.blue,
                     ),
                     child: _isLoading
-                        ?  SizedBox(
+                        ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: Lottie.asset(AppLottie.loading),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Save Address'),
                   ),
@@ -568,11 +595,13 @@ class _ProfileTabViewState extends State<ProfileTabView> {
               ),
             ),
             child: _isLoading
-                ?  SizedBox(
+                ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child:Lottie.asset(AppLottie.loading),
-                  
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Text(
                     'Save Changes',
@@ -619,23 +648,26 @@ class _ProfileTabViewState extends State<ProfileTabView> {
   Future<void> _logout() async {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               try {
                 await SupabaseService.signOut();
-                if (!context.mounted) return;
-                Navigator.pushReplacementNamed(context, Login.routeName);
+                if (!mounted) return;
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  Login.routeName,
+                  (route) => false,
+                );
               } catch (e) {
-                if (!context.mounted) return;
+                if (!mounted) return;
                 _showErrorSnackBar('Logout failed: $e');
               }
             },
@@ -644,5 +676,18 @@ class _ProfileTabViewState extends State<ProfileTabView> {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _streetController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _zipCodeController.dispose();
+    _nameFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    super.dispose();
   }
 }

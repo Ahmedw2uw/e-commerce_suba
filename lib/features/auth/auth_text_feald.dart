@@ -11,14 +11,14 @@ class AuthTextField extends StatelessWidget {
   final TextInputType? keyboardType;
 
   const AuthTextField({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.title,
     this.validator,
     this.controller,
     this.obscureText = false,
     this.keyboardType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

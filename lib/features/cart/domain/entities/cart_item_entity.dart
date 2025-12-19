@@ -1,10 +1,9 @@
-// lib/features/cart/domain/entities/cart_item_entity.dart
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:equatable/equatable.dart';
 
 class CartItemEntity extends Equatable {
   final String id;
-  final Product product; // ← استخدم Product بدلاً من ProductEntity
+  final Product product; 
   final int quantity;
   final DateTime addedAt;
 
@@ -19,7 +18,7 @@ class CartItemEntity extends Equatable {
 
   CartItemEntity copyWith({
     String? id,
-    Product? product, // ← Product هنا أيضاً
+    Product? product, // Product here as well
     int? quantity,
     DateTime? addedAt,
   }) {

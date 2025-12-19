@@ -4,13 +4,12 @@ import 'package:e_commerce/core/utilits/app_lottie.dart';
 import 'package:e_commerce/features/auth/auth_text_feald.dart';
 import 'package:e_commerce/features/auth/login/login.dart';
 import 'package:e_commerce/features/auth/services/supabase_service.dart';
-import 'package:e_commerce/features/navigation_layout/navigation_view.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class SignUp extends StatefulWidget {
   static const String routeName = '/register';
-  SignUp({super.key});
+  const SignUp({super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -81,7 +80,7 @@ class _SignUpState extends State<SignUp> {
         _isLoading = true;
       });
       try {
-        final result = await SupabaseService.signUp(
+        await SupabaseService.signUp(
           name: _fullNameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
@@ -231,7 +230,7 @@ class _SignUpState extends State<SignUp> {
                           Login.routeName,
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         "Sign In",
                         style: TextStyle(
                           color: AppColors.white,

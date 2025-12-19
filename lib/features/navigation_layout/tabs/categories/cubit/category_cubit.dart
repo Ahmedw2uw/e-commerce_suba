@@ -1,7 +1,5 @@
-// lib/features/navigation_layout/tabs/categories/cubit/category_cubit.dart
-
-import 'package:e_commerce/features/auth/models/category_model.dart';
-import 'package:e_commerce/features/navigation_layout/tabs/categories/repostry/category_repository.dart';
+import 'package:e_commerce/core/models/category_model.dart';
+import 'package:e_commerce/features/navigation_layout/tabs/categories/repositories/category_repository.dart';
 import 'package:e_commerce/features/navigation_layout/tabs/categories/cubit/category_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +13,7 @@ class CategoryCubit extends Cubit<CategoryState> {
   Future<void> loadCategories() async {
     emit(CategoryLoading());
     try {
-      // جلب كل التصنيفات
+      // Fetch all categories
       _categories = await _repository.fetchCategories();
       
       if (_categories.isEmpty) {
@@ -23,7 +21,7 @@ class CategoryCubit extends Cubit<CategoryState> {
         return;
       }
 
-      // جلب منتجات التصنيف الأول (الافتراضي)
+      // Fetch products for the first category (default)
       final products = await _repository.fetchProductsByCategory(
         _categories.first.id,
       );

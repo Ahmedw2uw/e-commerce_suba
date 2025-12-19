@@ -1,4 +1,4 @@
-import '../../../../auth/models/category_model.dart';
+import 'package:e_commerce/core/models/category_model.dart';
 
 class Product {
   final int id;
@@ -13,7 +13,6 @@ class Product {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Category? category;
-  
 
   Product({
     required this.id,
@@ -36,7 +35,6 @@ class Product {
       try {
         category = Category.fromJson(json['category']);
       } catch (e) {
-        print('Error parsing category; $e');
         category = null;
       }
     }

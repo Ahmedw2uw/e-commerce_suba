@@ -1,11 +1,11 @@
 // lib/features/cart/domain/repositories/cart_repository.dart
-import 'package:e_commerce/features/navigation_layout/tabs/home/model/product_model.dart';
+import 'package:e_commerce/core/models/product_model.dart';
 import 'package:e_commerce/features/cart/domain/entities/cart_item_entity.dart';
 
 abstract class CartRepository {
   Future<List<CartItemEntity>> getCartItems();
   Future<void> addToCart({
-    required Product product, // ← غير ProductEntity إلى Product
+    required Product product, // Change ProductEntity to Product
     required int quantity,
   });
   Future<void> removeFromCart(String cartItemId);
